@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PDF Signer — MVP</title>
+  <meta name="description"
+    content="Sistema de firma y llenado de formularios PDF. Sube plantillas, crea transacciones y genera PDFs firmados." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <!-- ================================================================
+       SIDEBAR
+  ================================================================ -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <svg width="24" height="24" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="sf-grad" x1="4" y1="4" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#FFFFFF"/>
+              <stop offset="60%" stop-color="#E4E4E7"/>
+              <stop offset="100%" stop-color="#A1A1AA"/>
+            </linearGradient>
+            <linearGradient id="sf-glow" x1="4" y1="28" x2="32" y2="22" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="rgba(255,255,255,0.08)"/>
+              <stop offset="50%" stop-color="rgba(255,255,255,0.5)"/>
+              <stop offset="100%" stop-color="rgba(255,255,255,0.15)"/>
+            </linearGradient>
+          </defs>
+          <!-- Signature flourish flow line -->
+          <path d="M4 29.5C10 27 16 32 24 29C27.5 27.5 30 25 31.5 22.5" stroke="url(#sf-glow)" stroke-width="1.3" stroke-linecap="round"/>
+          <!-- Letter S with decorative finials -->
+          <path d="M14 11C13.5 9 11.5 8 9 8C5.8 8 4.5 10.5 4.5 13.2C4.5 17.5 14.5 17 14.5 22.5C14.5 25.8 12 27.5 8.8 27.5C5.5 27.5 4 25.5 4 24.2" stroke="url(#sf-grad)" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="14" cy="11" r="1.3" fill="#FFFFFF"/>
+          <circle cx="4" cy="24.2" r="1.1" fill="#E4E4E7"/>
+          <!-- Letter F interlocked with S -->
+          <path d="M16.5 8.5L18.5 8.5" stroke="url(#sf-grad)" stroke-width="2" stroke-linecap="round"/>
+          <path d="M18.5 8.5V27" stroke="url(#sf-grad)" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M16 27H21" stroke="url(#sf-grad)" stroke-width="2" stroke-linecap="round"/>
+          <path d="M18.5 8.5C21 8.5 25 8 27.5 9.5" stroke="url(#sf-grad)" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="27.5" cy="9.5" r="1.2" fill="#FFFFFF"/>
+          <path d="M13.5 16.5H24.5" stroke="url(#sf-grad)" stroke-width="2.2" stroke-linecap="round"/>
+          <circle cx="24.5" cy="16.5" r="1.1" fill="#E4E4E7"/>
+          <!-- Sparkle accent ✦ -->
+          <path d="M29 3.5L29.6 5L31.2 5.6L29.6 6.2L29 7.7L28.4 6.2L26.8 5.6L28.4 5Z" fill="#FFFFFF" opacity="0.95"/>
+        </svg>
+      </div>
+      <span>SignFlow-MVP</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active" data-view="templates" id="nav-templates">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <path d="M3 9h18M9 21V9" />
+        </svg>
+        Plantillas
+      </button>
+      <button class="nav-item" data-view="transactions" id="nav-transactions">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10" />
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+        </svg>
+        Transacciones
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <span class="version-badge">MVP v1.0</span>
+    </div>
+  </aside>
+
+  <!-- ================================================================
+       MAIN CONTENT
+  ================================================================ -->
+  <main class="main-content">
+
+    <!-- ── TEMPLATES VIEW ─────────────────────────────── -->
+    <section id="view-templates" class="view active">
+      <div class="view-header">
+        <div>
+          <h1>Plantillas PDF</h1>
+          <p class="subtitle">Sube y administra tus plantillas de documentos</p>
+        </div>
+        <button class="btn btn-primary" id="btn-open-upload">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Subir plantilla
+        </button>
+      </div>
+
+      <!-- Upload Modal -->
+      <div class="modal-overlay" id="modal-upload" style="display:none">
+        <div class="modal">
+          <div class="modal-header">
+            <h2>Nueva Plantilla</h2>
+            <button class="modal-close" id="btn-close-upload">✕</button>
+          </div>
+          <form id="form-upload" class="modal-body">
+            <div class="form-group">
+              <label>Archivo PDF <span class="required">*</span></label>
+              <div class="drop-zone" id="drop-zone">
+                <div class="drop-zone-icon">
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17 8 12 3 7 8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
+                  </svg>
+                </div>
+                <p class="drop-text">Arrastra tu PDF aquí o <label class="file-link" for="file-input">haz clic para
+                    seleccionar</label></p>
+                <p class="drop-hint">Solo archivos PDF · Máx. 20 MB</p>
+                <input type="file" id="file-input" accept="application/pdf,.pdf" style="display:none" />
+              </div>
+              <div id="file-selected" class="file-selected-info" style="display:none"></div>
+            </div>
+            <div class="form-group">
+              <label for="input-description">Descripción <span class="optional">(opcional)</span></label>
+              <input type="text" id="input-description" placeholder="Ej: Contrato de servicios 2024" />
+            </div>
+            <div class="modal-actions">
+              <button type="button" class="btn btn-ghost" id="btn-cancel-upload">Cancelar</button>
+              <button type="submit" class="btn btn-primary" id="btn-submit-upload">
+                <span>Analizar y subir</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Templates List -->
+      <div id="templates-loading" class="loading-state" style="display:none">
+        <div class="spinner"></div>
+        <p>Cargando plantillas…</p>
+      </div>
+      <div id="templates-empty" class="empty-state" style="display:none">
+        <div class="empty-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+          </svg>
+        </div>
+        <h3>Sin plantillas aún</h3>
+        <p>Sube tu primer PDF para comenzar</p>
+      </div>
+      <div id="templates-grid" class="card-grid"></div>
+    </section>
+
+    <!-- ── TEMPLATE DETAIL VIEW ───────────────────────── -->
+    <section id="view-template-detail" class="view" style="display:none">
+      <div class="view-header">
+        <button class="btn btn-ghost back-btn" id="btn-back-from-template">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="19" y1="12" x2="5" y2="12" />
+            <polyline points="12 19 5 12 12 5" />
+          </svg>
+          Volver
+        </button>
+        <div class="header-actions">
+          <button class="btn btn-secondary" id="btn-preview-template-pdf">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            Ver PDF
+          </button>
+          <button class="btn btn-primary" id="btn-create-transaction">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Crear transacción
+          </button>
+        </div>
+      </div>
+
+      <div id="template-detail-content"></div>
+    </section>
+
+    <!-- ── TRANSACTIONS VIEW ──────────────────────────── -->
+    <section id="view-transactions" class="view" style="display:none">
+      <div class="view-header">
+        <div>
+          <h1>Transacciones</h1>
+          <p class="subtitle">Historial de documentos en proceso</p>
+        </div>
+      </div>
+
+      <div id="transactions-loading" class="loading-state" style="display:none">
+        <div class="spinner"></div>
+        <p>Cargando transacciones…</p>
+      </div>
+      <div id="transactions-empty" class="empty-state" style="display:none">
+        <div class="empty-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+            <polyline points="23 4 23 10 17 10" />
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+          </svg>
+        </div>
+        <h3>Sin transacciones aún</h3>
+        <p>Crea una transacción desde una plantilla para comenzar</p>
+      </div>
+      <div id="transactions-list" class="card-list"></div>
+    </section>
+
+    <!-- ── TRANSACTION DETAIL VIEW ────────────────────── -->
+    <section id="view-transaction-detail" class="view" style="display:none">
+      <div class="view-header">
+        <button class="btn btn-ghost back-btn" id="btn-back-from-transaction">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="19" y1="12" x2="5" y2="12" />
+            <polyline points="12 19 5 12 12 5" />
+          </svg>
+          Volver
+        </button>
+        <div class="header-actions" id="transaction-header-actions"></div>
+      </div>
+
+      <div id="transaction-detail-content"></div>
+    </section>
+
+  </main>
+
+  <!-- ================================================================
+       PDF VIEWER MODAL
+  ================================================================ -->
+  <div class="modal-overlay" id="modal-pdf" style="display:none">
+    <div class="modal modal-pdf">
+      <div class="modal-header">
+        <h2 id="pdf-modal-title">Vista previa del PDF</h2>
+        <div style="display:flex;gap:8px;align-items:center">
+          <a id="pdf-download-link" class="btn btn-secondary btn-sm" download>Descargar</a>
+          <button class="modal-close" id="btn-close-pdf">✕</button>
+        </div>
+      </div>
+      <div class="modal-pdf-body">
+        <iframe id="pdf-iframe" src="" frameborder="0"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       TOAST NOTIFICATIONS
+  ================================================================ -->
+  <div id="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,984 @@
+{
+  "templates": {
+    "9PfHj-_XbyN8VXImr-l95": {
+      "id": "9PfHj-_XbyN8VXImr-l95",
+      "name": "template-with-age-ok",
+      "description": null,
+      "pdf_path": "/home/santiagodevx/dev/pdf-signer/mvp/backend/storage/templates/9PfHj-_XbyN8VXImr-l95-template-with-age-ok.pdf",
+      "structure": {
+        "pages": [
+          {
+            "index": 0,
+            "width": 612,
+            "height": 792
+          }
+        ],
+        "fields": [
+          {
+            "name": "paciente_nombre",
+            "type": "TEXT",
+            "dataType": "TXT",
+            "required": true,
+            "rawName": "paciente_nombre:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 107.349,
+                "y": 720.001,
+                "width": 195.55200000000002,
+                "height": 13.298000000000002
+              }
+            ]
+          },
+          {
+            "name": "paciente_apellido",
+            "type": "TEXT",
+            "dataType": "TXT",
+            "required": true,
+            "rawName": "paciente_apellido:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 106.999,
+                "y": 688.901,
+                "width": 195.552,
+                "height": 13.298000000000002
+              }
+            ]
+          },
+          {
+            "name": "paciente_fechanacimiento",
+            "type": "TEXT",
+            "dataType": "DATE",
+            "required": true,
+            "rawName": "date:paciente_fechanacimiento:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 155.649,
+                "y": 626.701,
+                "width": 195.55200000000002,
+                "height": 13.298000000000002
+              }
+            ]
+          },
+          {
+            "name": "identificacion",
+            "type": "RADIO",
+            "required": false,
+            "rawName": "identificacion",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 57.499,
+                "y": 538.001,
+                "width": 8.052,
+                "height": 8.048000000000002,
+                "value": "CC"
+              },
+              {
+                "page": 0,
+                "x": 94.949,
+                "y": 538.001,
+                "width": 8.052000000000007,
+                "height": 8.048000000000002,
+                "value": "TI"
+              }
+            ]
+          },
+          {
+            "name": "paciente",
+            "type": "SIGNATURE",
+            "required": true,
+            "rawName": "paciente:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 56.699,
+                "y": 391.151,
+                "width": 218.30199999999996,
+                "height": 85.548
+              }
+            ]
+          },
+          {
+            "name": "paciente_email",
+            "type": "TEXT",
+            "dataType": "EMAIL",
+            "required": true,
+            "rawName": "email:paciente_email:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 96.649,
+                "y": 595.601,
+                "width": 195.55200000000002,
+                "height": 13.298000000000002
+              }
+            ]
+          },
+          {
+            "name": "paciente2",
+            "type": "SIGNATURE",
+            "required": false,
+            "rawName": "paciente2",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 56.699,
+                "y": 291.801,
+                "width": 218.30199999999996,
+                "height": 85.548
+              }
+            ]
+          },
+          {
+            "name": "estado_civil",
+            "type": "DROPDOWN",
+            "required": false,
+            "rawName": "estado_civil",
+            "options": [
+              "SOLTERO",
+              "CASADO",
+              "DIVORCIADO"
+            ],
+            "widgets": [
+              {
+                "page": 0,
+                "x": 58.699,
+                "y": 244.401,
+                "width": 201.55199999999996,
+                "height": 17.798000000000002
+              }
+            ]
+          },
+          {
+            "name": "con_hijos",
+            "type": "CHECKBOX",
+            "required": false,
+            "rawName": "con_hijos",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 115.799,
+                "y": 198.401,
+                "width": 8.051999999999992,
+                "height": 8.048000000000002
+              }
+            ]
+          },
+          {
+            "name": "paciente_edad",
+            "type": "TEXT",
+            "dataType": "NUM",
+            "required": true,
+            "rawName": "num:paciente_edad:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 89.649,
+                "y": 657.801,
+                "width": 195.55200000000002,
+                "height": 13.298000000000002
+              }
+            ]
+          }
+        ]
+      },
+      "created_at": "2026-10-03T17:33:51.029Z"
+    }
+  },
+  "transactions": {
+    "InQmrWpb0J8r94mhMiFgs": {
+      "id": "InQmrWpb0J8r94mhMiFgs",
+      "template_id": "9PfHj-_XbyN8VXImr-l95",
+      "template_name": "template-with-age-ok",
+      "pdf_path": "/home/santiagodevx/dev/pdf-signer/mvp/backend/storage/transactions/InQmrWpb0J8r94mhMiFgs/_9SK1vcX.pdf",
+      "structure": {
+        "pages": [
+          {
+            "index": 0,
+            "width": 612,
+            "height": 792
+          }
+        ],
+        "fields": [
+          {
+            "name": "paciente_nombre",
+            "type": "TEXT",
+            "dataType": "TXT",
+            "required": true,
+            "rawName": "paciente_nombre:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 107.349,
+                "y": 720.001,
+                "width": 195.55200000000002,
+                "height": 13.298000000000002
+              }
+            ]
+          },
+          {
+            "name": "paciente_apellido",
+            "type": "TEXT",
+            "dataType": "TXT",
+            "required": true,
+            "rawName": "paciente_apellido:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 106.999,
+                "y": 688.901,
+                "width": 195.552,
+                "height": 13.298000000000002
+              }
+            ]
+          },
+          {
+            "name": "paciente_fechanacimiento",
+            "type": "TEXT",
+            "dataType": "DATE",
+            "required": true,
+            "rawName": "date:paciente_fechanacimiento:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 155.649,
+                "y": 626.701,
+                "width": 195.55200000000002,
+                "height": 13.298000000000002
+              }
+            ]
+          },
+          {
+            "name": "identificacion",
+            "type": "RADIO",
+            "required": false,
+            "rawName": "identificacion",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 57.499,
+                "y": 538.001,
+                "width": 8.052,
+                "height": 8.048000000000002,
+                "value": "CC"
+              },
+              {
+                "page": 0,
+                "x": 94.949,
+                "y": 538.001,
+                "width": 8.052000000000007,
+                "height": 8.048000000000002,
+                "value": "TI"
+              }
+            ]
+          },
+          {
+            "name": "paciente",
+            "type": "SIGNATURE",
+            "required": true,
+            "rawName": "paciente:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 56.699,
+                "y": 391.151,
+                "width": 218.30199999999996,
+                "height": 85.548
+              }
+            ]
+          },
+          {
+            "name": "paciente_email",
+            "type": "TEXT",
+            "dataType": "EMAIL",
+            "required": true,
+            "rawName": "email:paciente_email:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 96.649,
+                "y": 595.601,
+                "width": 195.55200000000002,
+                "height": 13.298000000000002
+              }
+            ]
+          },
+          {
+            "name": "paciente2",
+            "type": "SIGNATURE",
+            "required": false,
+            "rawName": "paciente2",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 56.699,
+                "y": 291.801,
+                "width": 218.30199999999996,
+                "height": 85.548
+              }
+            ]
+          },
+          {
+            "name": "estado_civil",
+            "type": "DROPDOWN",
+            "required": false,
+            "rawName": "estado_civil",
+            "options": [
+              "SOLTERO",
+              "CASADO",
+              "DIVORCIADO"
+            ],
+            "widgets": [
+              {
+                "page": 0,
+                "x": 58.699,
+                "y": 244.401,
+                "width": 201.55199999999996,
+                "height": 17.798000000000002
+              }
+            ]
+          },
+          {
+            "name": "con_hijos",
+            "type": "CHECKBOX",
+            "required": false,
+            "rawName": "con_hijos",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 115.799,
+                "y": 198.401,
+                "width": 8.051999999999992,
+                "height": 8.048000000000002
+              }
+            ]
+          },
+          {
+            "name": "paciente_edad",
+            "type": "TEXT",
+            "dataType": "NUM",
+            "required": true,
+            "rawName": "num:paciente_edad:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 89.649,
+                "y": 657.801,
+                "width": 195.55200000000002,
+                "height": 13.298000000000002
+              }
+            ]
+          }
+        ]
+      },
+      "status": "FINALIZED",
+      "filled_data": {
+        "paciente_nombre": "Santiago Andrés Castillo Rudas",
+        "paciente_apellido": "Castillo Rudas",
+        "paciente_fechanacimiento": "2008-02-02",
+        "paciente": "Santiago Castillo",
+        "paciente_email": "santiagoandrescastillorudas@gmail.com",
+        "paciente2": "dsfasdfasdf",
+        "estado_civil": "CASADO",
+        "con_hijos": true,
+        "paciente_edad": "18"
+      },
+      "created_at": "2026-10-03T17:34:10.956Z",
+      "updated_at": "2026-10-03T17:35:09.733Z"
+    },
+    "4OlaWzA6qJl-DvrCYltIG": {
+      "id": "4OlaWzA6qJl-DvrCYltIG",
+      "template_id": "9PfHj-_XbyN8VXImr-l95",
+      "template_name": "template-with-age-ok",
+      "pdf_path": "/home/santiagodevx/dev/pdf-signer/mvp/backend/storage/transactions/4OlaWzA6qJl-DvrCYltIG/c19pG90C.pdf",
+      "structure": {
+        "pages": [
+          {
+            "index": 0,
+            "width": 612,
+            "height": 792
+          }
+        ],
+        "fields": [
+          {
+            "name": "paciente_nombre",
+            "type": "TEXT",
+            "dataType": "TXT",
+            "required": true,
+            "rawName": "paciente_nombre:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 107.349,
+                "y": 720.001,
+                "width": 195.55200000000002,
+                "height": 13.298000000000002
+              }
+            ]
+          },
+          {
+            "name": "paciente_apellido",
+            "type": "TEXT",
+            "dataType": "TXT",
+            "required": true,
+            "rawName": "paciente_apellido:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 106.999,
+                "y": 688.901,
+                "width": 195.552,
+                "height": 13.298000000000002
+              }
+            ]
+          },
+          {
+            "name": "paciente_fechanacimiento",
+            "type": "TEXT",
+            "dataType": "DATE",
+            "required": true,
+            "rawName": "date:paciente_fechanacimiento:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 155.649,
+                "y": 626.701,
+                "width": 195.55200000000002,
+                "height": 13.298000000000002
+              }
+            ]
+          },
+          {
+            "name": "identificacion",
+            "type": "RADIO",
+            "required": false,
+            "rawName": "identificacion",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 57.499,
+                "y": 538.001,
+                "width": 8.052,
+                "height": 8.048000000000002,
+                "value": "CC"
+              },
+              {
+                "page": 0,
+                "x": 94.949,
+                "y": 538.001,
+                "width": 8.052000000000007,
+                "height": 8.048000000000002,
+                "value": "TI"
+              }
+            ]
+          },
+          {
+            "name": "paciente",
+            "type": "SIGNATURE",
+            "required": true,
+            "rawName": "paciente:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 56.699,
+                "y": 391.151,
+                "width": 218.30199999999996,
+                "height": 85.548
+              }
+            ]
+          },
+          {
+            "name": "paciente_email",
+            "type": "TEXT",
+            "dataType": "EMAIL",
+            "required": true,
+            "rawName": "email:paciente_email:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 96.649,
+                "y": 595.601,
+                "width": 195.55200000000002,
+                "height": 13.298000000000002
+              }
+            ]
+          },
+          {
+            "name": "paciente2",
+            "type": "SIGNATURE",
+            "required": false,
+            "rawName": "paciente2",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 56.699,
+                "y": 291.801,
+                "width": 218.30199999999996,
+                "height": 85.548
+              }
+            ]
+          },
+          {
+            "name": "estado_civil",
+            "type": "DROPDOWN",
+            "required": false,
+            "rawName": "estado_civil",
+            "options": [
+              "SOLTERO",
+              "CASADO",
+              "DIVORCIADO"
+            ],
+            "widgets": [
+              {
+                "page": 0,
+                "x": 58.699,
+                "y": 244.401,
+                "width": 201.55199999999996,
+                "height": 17.798000000000002
+              }
+            ]
+          },
+          {
+            "name": "con_hijos",
+            "type": "CHECKBOX",
+            "required": false,
+            "rawName": "con_hijos",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 115.799,
+                "y": 198.401,
+                "width": 8.051999999999992,
+                "height": 8.048000000000002
+              }
+            ]
+          },
+          {
+            "name": "paciente_edad",
+            "type": "TEXT",
+            "dataType": "NUM",
+            "required": true,
+            "rawName": "num:paciente_edad:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 89.649,
+                "y": 657.801,
+                "width": 195.55200000000002,
+                "height": 13.298000000000002
+              }
+            ]
+          }
+        ]
+      },
+      "status": "FINALIZED",
+      "filled_data": {
+        "paciente_nombre": "Santiago Andrés",
+        "paciente_apellido": "Castillo Rudas",
+        "paciente_fechanacimiento": "2008-02-02",
+        "identificacion": "CC",
+        "paciente": "",
+        "paciente_email": "santiagoandrescastillorudas@gmail.com",
+        "paciente2": "",
+        "estado_civil": "CASADO",
+        "con_hijos": true,
+        "paciente_edad": "18"
+      },
+      "created_at": "2026-10-03T17:38:18.145Z",
+      "updated_at": "2026-10-03T17:46:57.020Z"
+    },
+    "CtdraJIdi1SUoxWi7qATf": {
+      "id": "CtdraJIdi1SUoxWi7qATf",
+      "template_id": "9PfHj-_XbyN8VXImr-l95",
+      "template_name": "template-with-age-ok",
+      "pdf_path": "/home/santiagodevx/dev/pdf-signer/mvp/backend/storage/templates/9PfHj-_XbyN8VXImr-l95-template-with-age-ok.pdf",
+      "structure": {
+        "pages": [
+          {
+            "index": 0,
+            "width": 612,
+            "height": 792
+          }
+        ],
+        "fields": [
+          {
+            "name": "paciente_nombre",
+            "type": "TEXT",
+            "dataType": "TXT",
+            "required": true,
+            "rawName": "paciente_nombre:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 107.349,
+                "y": 720.001,
+                "width": 195.55200000000002,
+                "height": 13.298000000000002
+              }
+            ]
+          },
+          {
+            "name": "paciente_apellido",
+            "type": "TEXT",
+            "dataType": "TXT",
+            "required": true,
+            "rawName": "paciente_apellido:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 106.999,
+                "y": 688.901,
+                "width": 195.552,
+                "height": 13.298000000000002
+              }
+            ]
+          },
+          {
+            "name": "paciente_fechanacimiento",
+            "type": "TEXT",
+            "dataType": "DATE",
+            "required": true,
+            "rawName": "date:paciente_fechanacimiento:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 155.649,
+                "y": 626.701,
+                "width": 195.55200000000002,
+                "height": 13.298000000000002
+              }
+            ]
+          },
+          {
+            "name": "identificacion",
+            "type": "RADIO",
+            "required": false,
+            "rawName": "identificacion",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 57.499,
+                "y": 538.001,
+                "width": 8.052,
+                "height": 8.048000000000002,
+                "value": "CC"
+              },
+              {
+                "page": 0,
+                "x": 94.949,
+                "y": 538.001,
+                "width": 8.052000000000007,
+                "height": 8.048000000000002,
+                "value": "TI"
+              }
+            ]
+          },
+          {
+            "name": "paciente",
+            "type": "SIGNATURE",
+            "required": true,
+            "rawName": "paciente:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 56.699,
+                "y": 391.151,
+                "width": 218.30199999999996,
+                "height": 85.548
+              }
+            ]
+          },
+          {
+            "name": "paciente_email",
+            "type": "TEXT",
+            "dataType": "EMAIL",
+            "required": true,
+            "rawName": "email:paciente_email:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 96.649,
+                "y": 595.601,
+                "width": 195.55200000000002,
+                "height": 13.298000000000002
+              }
+            ]
+          },
+          {
+            "name": "paciente2",
+            "type": "SIGNATURE",
+            "required": false,
+            "rawName": "paciente2",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 56.699,
+                "y": 291.801,
+                "width": 218.30199999999996,
+                "height": 85.548
+              }
+            ]
+          },
+          {
+            "name": "estado_civil",
+            "type": "DROPDOWN",
+            "required": false,
+            "rawName": "estado_civil",
+            "options": [
+              "SOLTERO",
+              "CASADO",
+              "DIVORCIADO"
+            ],
+            "widgets": [
+              {
+                "page": 0,
+                "x": 58.699,
+                "y": 244.401,
+                "width": 201.55199999999996,
+                "height": 17.798000000000002
+              }
+            ]
+          },
+          {
+            "name": "con_hijos",
+            "type": "CHECKBOX",
+            "required": false,
+            "rawName": "con_hijos",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 115.799,
+                "y": 198.401,
+                "width": 8.051999999999992,
+                "height": 8.048000000000002
+              }
+            ]
+          },
+          {
+            "name": "paciente_edad",
+            "type": "TEXT",
+            "dataType": "NUM",
+            "required": true,
+            "rawName": "num:paciente_edad:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 89.649,
+                "y": 657.801,
+                "width": 195.55200000000002,
+                "height": 13.298000000000002
+              }
+            ]
+          }
+        ]
+      },
+      "status": "CREATED",
+      "filled_data": {},
+      "created_at": "2026-10-03T17:44:26.300Z",
+      "updated_at": "2026-10-03T17:44:26.300Z"
+    },
+    "nFx3sHy-dlvK4lp-rhnYK": {
+      "id": "nFx3sHy-dlvK4lp-rhnYK",
+      "template_id": "9PfHj-_XbyN8VXImr-l95",
+      "template_name": "template-with-age-ok",
+      "pdf_path": "/home/santiagodevx/dev/pdf-signer/mvp/backend/storage/transactions/nFx3sHy-dlvK4lp-rhnYK/9OB5zc7a.pdf",
+      "structure": {
+        "pages": [
+          {
+            "index": 0,
+            "width": 612,
+            "height": 792
+          }
+        ],
+        "fields": [
+          {
+            "name": "paciente_nombre",
+            "type": "TEXT",
+            "dataType": "TXT",
+            "required": true,
+            "rawName": "paciente_nombre:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 107.349,
+                "y": 720.001,
+                "width": 195.55200000000002,
+                "height": 13.298000000000002
+              }
+            ]
+          },
+          {
+            "name": "paciente_apellido",
+            "type": "TEXT",
+            "dataType": "TXT",
+            "required": true,
+            "rawName": "paciente_apellido:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 106.999,
+                "y": 688.901,
+                "width": 195.552,
+                "height": 13.298000000000002
+              }
+            ]
+          },
+          {
+            "name": "paciente_fechanacimiento",
+            "type": "TEXT",
+            "dataType": "DATE",
+            "required": true,
+            "rawName": "date:paciente_fechanacimiento:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 155.649,
+                "y": 626.701,
+                "width": 195.55200000000002,
+                "height": 13.298000000000002
+              }
+            ]
+          },
+          {
+            "name": "identificacion",
+            "type": "RADIO",
+            "required": false,
+            "rawName": "identificacion",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 57.499,
+                "y": 538.001,
+                "width": 8.052,
+                "height": 8.048000000000002,
+                "value": "CC"
+              },
+              {
+                "page": 0,
+                "x": 94.949,
+                "y": 538.001,
+                "width": 8.052000000000007,
+                "height": 8.048000000000002,
+                "value": "TI"
+              }
+            ]
+          },
+          {
+            "name": "paciente",
+            "type": "SIGNATURE",
+            "required": true,
+            "rawName": "paciente:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 56.699,
+                "y": 391.151,
+                "width": 218.30199999999996,
+                "height": 85.548
+              }
+            ]
+          },
+          {
+            "name": "paciente_email",
+            "type": "TEXT",
+            "dataType": "EMAIL",
+            "required": true,
+            "rawName": "email:paciente_email:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 96.649,
+                "y": 595.601,
+                "width": 195.55200000000002,
+                "height": 13.298000000000002
+              }
+            ]
+          },
+          {
+            "name": "paciente2",
+            "type": "SIGNATURE",
+            "required": false,
+            "rawName": "paciente2",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 56.699,
+                "y": 291.801,
+                "width": 218.30199999999996,
+                "height": 85.548
+              }
+            ]
+          },
+          {
+            "name": "estado_civil",
+            "type": "DROPDOWN",
+            "required": false,
+            "rawName": "estado_civil",
+            "options": [
+              "SOLTERO",
+              "CASADO",
+              "DIVORCIADO"
+            ],
+            "widgets": [
+              {
+                "page": 0,
+                "x": 58.699,
+                "y": 244.401,
+                "width": 201.55199999999996,
+                "height": 17.798000000000002
+              }
+            ]
+          },
+          {
+            "name": "con_hijos",
+            "type": "CHECKBOX",
+            "required": false,
+            "rawName": "con_hijos",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 115.799,
+                "y": 198.401,
+                "width": 8.051999999999992,
+                "height": 8.048000000000002
+              }
+            ]
+          },
+          {
+            "name": "paciente_edad",
+            "type": "TEXT",
+            "dataType": "NUM",
+            "required": true,
+            "rawName": "num:paciente_edad:req",
+            "widgets": [
+              {
+                "page": 0,
+                "x": 89.649,
+                "y": 657.801,
+                "width": 195.55200000000002,
+                "height": 13.298000000000002
+              }
+            ]
+          }
+        ]
+      },
+      "status": "FINALIZED",
+      "filled_data": {
+        "paciente_nombre": "",
+        "paciente_apellido": "",
+        "paciente_fechanacimiento": "",
+        "paciente": "",
+        "paciente_email": "S",
+        "paciente2": "Santiago Castillo",
+        "estado_civil": "",
+        "con_hijos": false,
+        "paciente_edad": ""
+      },
+      "created_at": "2026-10-03T17:55:13.659Z",
+      "updated_at": "2026-10-03T17:55:22.155Z"
+    }
+  }
+}
