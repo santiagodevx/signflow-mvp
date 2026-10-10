@@ -3,7 +3,93 @@
  * Analyzes PDF fields and fills/flattens PDF forms using pdf-lib.
  */
 
-const { PDFDocument, PDFTextField, PDFCheckBox, PDFRadioGroup, PDFDropdown, PDFButton } = require('pdf-lib');
+const { PDFDocument, PDFTextField, PDFCheckBox, PDFRadioGroup, PDFDropdown, PDFButton, rgb } = require('pdf-lib');
+
+// ---------------------------------------------------------------------------
+// SVG Signature Helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Parses an SVG signature string into structured data for PDF rendering.
+ * Extracts the viewBox dimensions and all path commands with stroke info.
+ */
+function parseSvgSignature(svgString) {
+  if (!svgString || typeof svgString !== 'string') return null;
+
+  // Extract viewBox
+  const vbMatch = svgString.match(/viewBox="([^"]+)"/);
+  let viewBox = { x: 0, y: 0, width: 200, height: 100 };
+  if (vbMatch) {
+    const parts = vbMatch[1].trim().split(/[\s,]+/).map(Number);
+    if (parts.length >= 4) {
+      viewBox = { x: parts[0], y: parts[1], width: parts[2], height: parts[3] };
+    }
+  } else {
+    // Try width/height attributes
+    const wMatch = svgString.match(/width="([\d.]+)"/);
+    const hMatch = svgString.match(/height="([\d.]+)"/);
+    if (wMatch) viewBox.width = parseFloat(wMatch[1]);
+    if (hMatch) viewBox.height = parseFloat(hMatch[1]);
+  }
+
+  // Extract all <path> elements
+  const pathRegex = /<path\s+([^>]*?)\/?\s*>/g;
+  const paths = [];
+  let pathMatch;
+  while ((pathMatch = pathRegex.exec(svgString)) !== null) {
+    const attrs = pathMatch[1];
+    const dMatch = attrs.match(/d="([^"]+)"/);
+    const strokeMatch = attrs.match(/stroke="([^"]+)"/);
+    const swMatch = attrs.match(/stroke-width="([^"]+)"/);
+
+    if (dMatch) {
+      const points = parseSvgPathD(dMatch[1]);
+      paths.push({
+        points,
+        stroke: strokeMatch ? strokeMatch[1] : '#000000',
+        strokeWidth: swMatch ? parseFloat(swMatch[1]) : 2,
+      });
+    }
+  }
+
+  return { viewBox, paths };
+}
+
+/**
+ * Parses an SVG path "d" attribute into an array of {x, y} points.
+ * Only supports M (moveTo) and L (lineTo) commands used by our canvas.
+ */
+function parseSvgPathD(d) {
+  if (!d) return [];
+  const points = [];
+  const commands = d.match(/[ML][\s,]?[\d.]+[\s,]+[\d.]+/g);
+  if (!commands) return [];
+  for (const cmd of commands) {
+    const nums = cmd.match(/[\d.]+/g);
+    if (nums && nums.length >= 2) {
+      points.push({ x: parseFloat(nums[0]), y: parseFloat(nums[1]) });
+    }
+  }
+  return points;
+}
+
+/**
+ * Converts a hex color string to an {r, g, b} object (0-255 range).
+ */
+function hexToRgb(hex) {
+  const clean = hex.replace('#', '');
+  let r, g, b;
+  if (clean.length === 3) {
+    r = parseInt(clean[0] + clean[0], 16);
+    g = parseInt(clean[1] + clean[1], 16);
+    b = parseInt(clean[2] + clean[2], 16);
+  } else {
+    r = parseInt(clean.substring(0, 2), 16);
+    g = parseInt(clean.substring(2, 4), 16);
+    b = parseInt(clean.substring(4, 6), 16);
+  }
+  return { r: r || 0, g: g || 0, b: b || 0 };
+}
 
 // ---------------------------------------------------------------------------
 // Field Name Parser
@@ -203,7 +289,78 @@ async function fillPdf(pdfBuffer, templateStructure, data) {
         break;
       }
       case 'SIGNATURE': {
-        // MVP: skip signature rendering (requires SVG→PNG conversion)
+        // Render SVG signature paths into the PDF
+        if (typeof value !== 'string' || !value.startsWith('<svg')) break;
+
+        const svgParsed = parseSvgSignature(value);
+        if (!svgParsed || svgParsed.paths.length === 0) break;
+
+        // Get the widget rectangle to know where to draw
+        const sigWidgets = field.widgets || [];
+        if (sigWidgets.length === 0) break;
+
+        const pdfPages = pdfDoc.getPages();
+
+        for (const widget of sigWidgets) {
+          const page = pdfPages[widget.page] || pdfPages[0];
+          const { x: wx, y: wy, width: ww, height: wh } = widget;
+
+          // Calculate scale to fit signature within the widget box
+          const svgW = svgParsed.viewBox.width || 1;
+          const svgH = svgParsed.viewBox.height || 1;
+
+          // Fit within widget with some padding
+          const padding = 2;
+          const availW = ww - padding * 2;
+          const availH = wh - padding * 2;
+          const scale = Math.min(availW / svgW, availH / svgH);
+
+          // Center the signature in the widget
+          const scaledW = svgW * scale;
+          const scaledH = svgH * scale;
+          const offsetX = wx + padding + (availW - scaledW) / 2;
+          const offsetY = wy + padding + (availH - scaledH) / 2;
+
+          // Draw each SVG path as PDF lines
+          for (const pathData of svgParsed.paths) {
+            const points = pathData.points;
+            if (points.length < 2) continue;
+
+            const strokeWidth = (pathData.strokeWidth || 2) * scale * 0.6;
+
+            // Determine ink color — map common colors to dark for print
+            let rgbColor = { r: 0, g: 0, b: 0 };
+            if (pathData.stroke && pathData.stroke !== '#ffffff' && pathData.stroke !== '#fff') {
+              rgbColor = hexToRgb(pathData.stroke);
+            }
+            const color = rgb(rgbColor.r / 255, rgbColor.g / 255, rgbColor.b / 255);
+
+            // Draw line segments
+            for (let i = 1; i < points.length; i++) {
+              const x1 = offsetX + points[i - 1].x * scale;
+              // PDF Y is bottom-up, SVG Y is top-down → flip
+              const y1 = offsetY + (svgH - points[i - 1].y) * scale;
+              const x2 = offsetX + points[i].x * scale;
+              const y2 = offsetY + (svgH - points[i].y) * scale;
+
+              page.drawLine({
+                start: { x: x1, y: y1 },
+                end: { x: x2, y: y2 },
+                thickness: strokeWidth,
+                color,
+              });
+            }
+          }
+        }
+
+        // Remove the button field from the form so it doesn't overlay the drawn signature
+        try {
+          const btnField = form.getButton(field.rawName);
+          form.removeField(btnField);
+        } catch (_e) {
+          // Field may not exist or may not be removable — ignore
+        }
+
         break;
       }
     }

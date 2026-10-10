@@ -46,7 +46,7 @@ fs.mkdirSync(TRANSACTIONS_DIR, { recursive: true });
 
 const app = express();
 app.use(cors());
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '50mb' }));
 
 // ---------------------------------------------------------------------------
 // Multer (memory storage — parse PDF in memory)
