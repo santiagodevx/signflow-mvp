@@ -561,14 +561,56 @@ function renderFillForm(fields, filledData, readOnly, txId) {
     }
 
     if (f.type === 'SIGNATURE') {
+      const hasSig = val && val.startsWith('<svg');
+      if (readOnly) {
+        return `
+          <div class="form-field">
+            <label>${f.name} ${req}</label>
+            ${hasSig
+              ? `<div class="signature-readonly-display">${val}</div>`
+              : `<span style="font-size:0.78rem;color:var(--color-text-muted)">Sin firma</span>`
+            }
+            <input type="hidden" id="field-${f.name}" name="${f.name}" value="${val ? val.replace(/"/g, '&quot;') : ''}" />
+          </div>
+        `;
+      }
       return `
         <div class="form-field">
-          <label for="field-${f.name}">${f.name} ${req}</label>
-          <input type="text" id="field-${f.name}" name="${f.name}"
-            placeholder="Firma (SVG o texto representativo)"
-            value="${val || ''}"
-            ${readOnly ? 'readonly' : ''} />
-          <span style="font-size:0.72rem;color:var(--color-text-muted)">Campo de firma — ingresa un valor representativo</span>
+          <label>${f.name} ${req}</label>
+          <div class="signature-field-wrapper">
+            <div class="signature-preview-container ${hasSig ? 'has-signature' : ''}"
+                 id="sig-preview-${f.name}"
+                 onclick="openSignaturePad('${f.name}')">
+              ${hasSig
+                ? `<div class="signature-preview-svg">${val}</div>
+                   <div class="signature-preview-actions">
+                     <button type="button" class="signature-mini-btn" onclick="event.stopPropagation();openSignaturePad('${f.name}')" title="Editar firma">
+                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                         <path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+                       </svg>
+                     </button>
+                     <button type="button" class="signature-mini-btn danger" onclick="event.stopPropagation();clearSignatureField('${f.name}')" title="Borrar firma">
+                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                         <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                       </svg>
+                     </button>
+                   </div>`
+                : `<div class="signature-preview-placeholder">
+                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                       <path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+                     </svg>
+                     <span>Haz clic para firmar</span>
+                   </div>`
+              }
+            </div>
+            ${hasSig ? `<div class="signature-status">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Firma capturada
+            </div>` : ''}
+            <input type="hidden" id="field-${f.name}" name="${f.name}" value="${val ? val.replace(/"/g, '&quot;') : ''}" />
+          </div>
         </div>
       `;
     }
@@ -616,8 +658,11 @@ function collectFormData(fields) {
       const el = root.querySelector(`#field-${CSS.escape(f.name)}`);
       if (el) data[f.name] = el.value;
 
+    } else if (f.type === 'SIGNATURE') {
+      const el = root.querySelector(`#field-${CSS.escape(f.name)}`);
+      if (el && el.value) data[f.name] = el.value;
     } else {
-      // TEXT, SIGNATURE
+      // TEXT
       const el = root.querySelector(`#field-${CSS.escape(f.name)}`);
       if (el) data[f.name] = el.value;
     }
@@ -677,6 +722,333 @@ async function cancelTransaction(txId) {
   } catch (err) {
     showToast(err.message, 'error');
   }
+}
+
+// ---------------------------------------------------------------------------
+// SIGNATURE PAD ENGINE
+// ---------------------------------------------------------------------------
+
+const signaturePadState = {
+  fieldName: null,
+  strokes: [],        // Array of stroke objects { points, color, width }
+  currentStroke: null,
+  isDrawing: false,
+  penColor: '#ffffff',
+  penWidth: 3,
+  canvas: null,
+  ctx: null,
+};
+
+function openSignaturePad(fieldName) {
+  const state = signaturePadState;
+  state.fieldName = fieldName;
+  state.strokes = [];
+  state.currentStroke = null;
+  state.isDrawing = false;
+
+  const modal = document.getElementById('modal-signature');
+  const canvas = document.getElementById('signature-canvas');
+  const wrapper = document.getElementById('signature-canvas-wrapper');
+  const title = document.getElementById('signature-modal-title');
+
+  title.textContent = `Firma — ${fieldName}`;
+
+  // Set up canvas resolution
+  // We need to show the modal first to get actual dimensions
+  modal.style.display = 'flex';
+
+  // Delay canvas setup to allow DOM to render
+  requestAnimationFrame(() => {
+    const actualRect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = actualRect.width * dpr;
+    canvas.height = actualRect.height * dpr;
+
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    state.canvas = canvas;
+    state.ctx = ctx;
+
+    // Check if there's an existing signature and try to load it
+    const hiddenInput = document.getElementById(`field-${fieldName}`);
+    if (hiddenInput && hiddenInput.value && hiddenInput.value.startsWith('<svg')) {
+      // Parse existing SVG and reload strokes
+      loadSvgToCanvas(hiddenInput.value);
+    }
+
+    wrapper.classList.toggle('has-strokes', state.strokes.length > 0);
+    redrawCanvas();
+  });
+}
+
+function loadSvgToCanvas(svgString) {
+  const state = signaturePadState;
+  state.strokes = [];
+
+  // Parse the SVG path elements back into strokes
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(svgString, 'image/svg+xml');
+  const paths = doc.querySelectorAll('path');
+
+  paths.forEach(pathEl => {
+    const d = pathEl.getAttribute('d');
+    const stroke = pathEl.getAttribute('stroke') || '#ffffff';
+    const width = parseFloat(pathEl.getAttribute('stroke-width')) || 3;
+
+    // Parse the SVG path d attribute back into points
+    const points = parseSvgPathToPoints(d);
+    if (points.length > 0) {
+      state.strokes.push({ points, color: stroke, width });
+    }
+  });
+}
+
+function parseSvgPathToPoints(d) {
+  if (!d) return [];
+  const points = [];
+  // Match M and L commands with their coordinates
+  const commands = d.match(/[ML][\s,]?[\d.]+[\s,]+[\d.]+/g);
+  if (!commands) return [];
+
+  commands.forEach(cmd => {
+    const nums = cmd.match(/[\d.]+/g);
+    if (nums && nums.length >= 2) {
+      points.push({ x: parseFloat(nums[0]), y: parseFloat(nums[1]) });
+    }
+  });
+  return points;
+}
+
+function closeSignaturePad() {
+  document.getElementById('modal-signature').style.display = 'none';
+  signaturePadState.fieldName = null;
+  signaturePadState.strokes = [];
+}
+
+function confirmSignature() {
+  const state = signaturePadState;
+  if (state.strokes.length === 0) {
+    showToast('Dibuja tu firma antes de confirmar', 'error');
+    return;
+  }
+
+  const svgString = exportStrokesToSvg();
+  const fieldName = state.fieldName;
+
+  // Update hidden input
+  const hiddenInput = document.getElementById(`field-${fieldName}`);
+  if (hiddenInput) hiddenInput.value = svgString;
+
+  // Update preview
+  const preview = document.getElementById(`sig-preview-${fieldName}`);
+  if (preview) {
+    preview.classList.add('has-signature');
+    preview.innerHTML = `
+      <div class="signature-preview-svg">${svgString}</div>
+      <div class="signature-preview-actions">
+        <button type="button" class="signature-mini-btn" onclick="event.stopPropagation();openSignaturePad('${fieldName}')" title="Editar firma">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+          </svg>
+        </button>
+        <button type="button" class="signature-mini-btn danger" onclick="event.stopPropagation();clearSignatureField('${fieldName}')" title="Borrar firma">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    `;
+
+    // Add status indicator after preview container
+    const wrapper = preview.closest('.signature-field-wrapper');
+    const oldStatus = wrapper?.querySelector('.signature-status');
+    if (oldStatus) oldStatus.remove();
+    if (wrapper) {
+      const statusEl = document.createElement('div');
+      statusEl.className = 'signature-status';
+      statusEl.innerHTML = `
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        Firma capturada
+      `;
+      // Insert before the hidden input
+      const hiddenEl = wrapper.querySelector('input[type="hidden"]');
+      wrapper.insertBefore(statusEl, hiddenEl);
+    }
+  }
+
+  closeSignaturePad();
+  showToast('Firma guardada correctamente', 'success');
+}
+
+function clearSignatureField(fieldName) {
+  const hiddenInput = document.getElementById(`field-${fieldName}`);
+  if (hiddenInput) hiddenInput.value = '';
+
+  const preview = document.getElementById(`sig-preview-${fieldName}`);
+  if (preview) {
+    preview.classList.remove('has-signature');
+    preview.innerHTML = `
+      <div class="signature-preview-placeholder">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+        </svg>
+        <span>Haz clic para firmar</span>
+      </div>
+    `;
+
+    const wrapper = preview.closest('.signature-field-wrapper');
+    const oldStatus = wrapper?.querySelector('.signature-status');
+    if (oldStatus) oldStatus.remove();
+  }
+}
+
+function exportStrokesToSvg() {
+  const state = signaturePadState;
+  const canvas = state.canvas;
+  const rect = canvas.getBoundingClientRect();
+  const w = rect.width;
+  const h = rect.height;
+
+  // Calculate the bounding box of all strokes
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const stroke of state.strokes) {
+    for (const pt of stroke.points) {
+      minX = Math.min(minX, pt.x);
+      minY = Math.min(minY, pt.y);
+      maxX = Math.max(maxX, pt.x);
+      maxY = Math.max(maxY, pt.y);
+    }
+  }
+
+  // Add padding
+  const pad = 8;
+  minX = Math.max(0, minX - pad);
+  minY = Math.max(0, minY - pad);
+  maxX = Math.min(w, maxX + pad);
+  maxY = Math.min(h, maxY + pad);
+  const bw = maxX - minX;
+  const bh = maxY - minY;
+
+  // Generate SVG paths
+  const paths = state.strokes.map(stroke => {
+    if (stroke.points.length === 0) return '';
+    const d = stroke.points.map((pt, i) => {
+      const x = (pt.x - minX).toFixed(2);
+      const y = (pt.y - minY).toFixed(2);
+      return i === 0 ? `M${x},${y}` : `L${x},${y}`;
+    }).join(' ');
+    return `<path d="${d}" stroke="${stroke.color}" stroke-width="${stroke.width}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+  }).filter(Boolean).join('\n  ');
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${bw.toFixed(1)} ${bh.toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}">
+  ${paths}
+</svg>`;
+}
+
+function redrawCanvas() {
+  const state = signaturePadState;
+  const { ctx, canvas } = state;
+  if (!ctx || !canvas) return;
+
+  const rect = canvas.getBoundingClientRect();
+  ctx.clearRect(0, 0, rect.width, rect.height);
+
+  for (const stroke of state.strokes) {
+    if (stroke.points.length < 2) continue;
+    ctx.beginPath();
+    ctx.strokeStyle = stroke.color;
+    ctx.lineWidth = stroke.width;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
+    for (let i = 1; i < stroke.points.length; i++) {
+      ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
+    }
+    ctx.stroke();
+  }
+}
+
+function getCanvasPos(e) {
+  const canvas = signaturePadState.canvas;
+  const rect = canvas.getBoundingClientRect();
+  if (e.touches && e.touches.length > 0) {
+    return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
+  }
+  return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+}
+
+function onCanvasPointerDown(e) {
+  e.preventDefault();
+  const state = signaturePadState;
+  state.isDrawing = true;
+  const pos = getCanvasPos(e);
+  state.currentStroke = {
+    points: [pos],
+    color: state.penColor,
+    width: state.penWidth,
+  };
+  document.getElementById('signature-canvas-wrapper').classList.add('drawing');
+}
+
+function onCanvasPointerMove(e) {
+  e.preventDefault();
+  const state = signaturePadState;
+  if (!state.isDrawing || !state.currentStroke) return;
+
+  const pos = getCanvasPos(e);
+  state.currentStroke.points.push(pos);
+
+  // Draw the last segment
+  const pts = state.currentStroke.points;
+  const { ctx } = state;
+  if (pts.length >= 2) {
+    ctx.beginPath();
+    ctx.strokeStyle = state.currentStroke.color;
+    ctx.lineWidth = state.currentStroke.width;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.moveTo(pts[pts.length - 2].x, pts[pts.length - 2].y);
+    ctx.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y);
+    ctx.stroke();
+  }
+}
+
+function onCanvasPointerUp(e) {
+  e.preventDefault();
+  const state = signaturePadState;
+  if (!state.isDrawing) return;
+  state.isDrawing = false;
+
+  if (state.currentStroke && state.currentStroke.points.length > 1) {
+    state.strokes.push(state.currentStroke);
+  }
+  state.currentStroke = null;
+
+  const wrapper = document.getElementById('signature-canvas-wrapper');
+  wrapper.classList.remove('drawing');
+  wrapper.classList.toggle('has-strokes', state.strokes.length > 0);
+}
+
+function undoLastStroke() {
+  const state = signaturePadState;
+  if (state.strokes.length === 0) return;
+  state.strokes.pop();
+  const wrapper = document.getElementById('signature-canvas-wrapper');
+  wrapper.classList.toggle('has-strokes', state.strokes.length > 0);
+  redrawCanvas();
+}
+
+function clearAllStrokes() {
+  const state = signaturePadState;
+  state.strokes = [];
+  const wrapper = document.getElementById('signature-canvas-wrapper');
+  wrapper.classList.remove('has-strokes');
+  redrawCanvas();
 }
 
 // ---------------------------------------------------------------------------
@@ -822,6 +1194,48 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('pdf-iframe').src = '';
   });
 
+  // ── Signature pad events ──────────────────────────────
+  const sigCanvas = document.getElementById('signature-canvas');
+
+  // Mouse events
+  sigCanvas.addEventListener('mousedown', onCanvasPointerDown);
+  sigCanvas.addEventListener('mousemove', onCanvasPointerMove);
+  sigCanvas.addEventListener('mouseup', onCanvasPointerUp);
+  sigCanvas.addEventListener('mouseleave', onCanvasPointerUp);
+
+  // Touch events
+  sigCanvas.addEventListener('touchstart', onCanvasPointerDown, { passive: false });
+  sigCanvas.addEventListener('touchmove', onCanvasPointerMove, { passive: false });
+  sigCanvas.addEventListener('touchend', onCanvasPointerUp);
+  sigCanvas.addEventListener('touchcancel', onCanvasPointerUp);
+
+  // Toolbar: colors
+  document.getElementById('signature-colors').addEventListener('click', (e) => {
+    const swatch = e.target.closest('.color-swatch');
+    if (!swatch) return;
+    document.querySelectorAll('#signature-colors .color-swatch').forEach(s => s.classList.remove('active'));
+    swatch.classList.add('active');
+    signaturePadState.penColor = swatch.dataset.color;
+  });
+
+  // Toolbar: pen widths
+  document.getElementById('signature-pen-width').addEventListener('click', (e) => {
+    const opt = e.target.closest('.pen-width-option');
+    if (!opt) return;
+    document.querySelectorAll('#signature-pen-width .pen-width-option').forEach(o => o.classList.remove('active'));
+    opt.classList.add('active');
+    signaturePadState.penWidth = parseInt(opt.dataset.width);
+  });
+
+  // Toolbar: undo & clear
+  document.getElementById('btn-signature-undo').addEventListener('click', undoLastStroke);
+  document.getElementById('btn-signature-clear').addEventListener('click', clearAllStrokes);
+
+  // Signature modal: close, cancel, confirm
+  document.getElementById('btn-close-signature').addEventListener('click', closeSignaturePad);
+  document.getElementById('btn-cancel-signature').addEventListener('click', closeSignaturePad);
+  document.getElementById('btn-confirm-signature').addEventListener('click', confirmSignature);
+
   // Close modals on overlay click
   document.getElementById('modal-upload').addEventListener('click', (e) => {
     if (e.target === e.currentTarget) closeUploadModal();
@@ -831,6 +1245,9 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('modal-pdf').style.display = 'none';
       document.getElementById('pdf-iframe').src = '';
     }
+  });
+  document.getElementById('modal-signature').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeSignaturePad();
   });
 
   // Initial load

@@ -248,6 +248,77 @@
   </div>
 
   <!-- ================================================================
+       SIGNATURE PAD MODAL
+  ================================================================ -->
+  <div class="modal-overlay" id="modal-signature" style="display:none">
+    <div class="modal modal-signature">
+      <div class="modal-header">
+        <h2 id="signature-modal-title">Firma</h2>
+        <button class="modal-close" id="btn-close-signature">✕</button>
+      </div>
+      <div class="signature-modal-body">
+        <div class="signature-canvas-wrapper" id="signature-canvas-wrapper">
+          <canvas class="signature-canvas" id="signature-canvas"></canvas>
+          <div class="signature-line"></div>
+          <div class="signature-line-label">Firma aquí</div>
+          <div class="signature-canvas-empty" id="signature-canvas-empty">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+            </svg>
+            <span>Dibuja tu firma con el mouse o dedo</span>
+          </div>
+        </div>
+        <div class="signature-toolbar">
+          <div class="signature-toolbar-group">
+            <div class="signature-colors" id="signature-colors">
+              <div class="color-swatch active" data-color="#ffffff" style="background:#ffffff" title="Blanco"></div>
+              <div class="color-swatch" data-color="#60a5fa" style="background:#60a5fa" title="Azul"></div>
+              <div class="color-swatch" data-color="#22c55e" style="background:#22c55e" title="Verde"></div>
+              <div class="color-swatch" data-color="#f59e0b" style="background:#f59e0b" title="Amarillo"></div>
+            </div>
+            <div class="pen-width-select" id="signature-pen-width">
+              <button class="pen-width-option" data-width="2" title="Fino">
+                <div class="pen-width-dot" style="width:4px;height:4px"></div>
+              </button>
+              <button class="pen-width-option active" data-width="3" title="Medio">
+                <div class="pen-width-dot" style="width:6px;height:6px"></div>
+              </button>
+              <button class="pen-width-option" data-width="5" title="Grueso">
+                <div class="pen-width-dot" style="width:9px;height:9px"></div>
+              </button>
+            </div>
+          </div>
+          <div class="signature-toolbar-group">
+            <button class="signature-tool-btn" id="btn-signature-undo" title="Deshacer último trazo">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="1 4 1 10 7 10"/>
+                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+              </svg>
+              Deshacer
+            </button>
+            <button class="signature-tool-btn" id="btn-signature-clear" title="Limpiar todo">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+              </svg>
+              Limpiar
+            </button>
+          </div>
+        </div>
+        <div class="signature-modal-actions">
+          <button class="btn btn-ghost" id="btn-cancel-signature">Cancelar</button>
+          <button class="btn btn-primary" id="btn-confirm-signature">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Confirmar firma
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================
        TOAST NOTIFICATIONS
   ================================================================ -->
   <div id="toast-container"></div>
