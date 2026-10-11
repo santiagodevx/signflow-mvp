@@ -3,9 +3,9 @@
  * Vanilla JS SPA with no build step needed
  */
 
-'use strict';
+"use strict";
 
-const API = 'http://localhost:3001/api';
+const API = "http://localhost:3001/api";
 
 // ---------------------------------------------------------------------------
 // State
@@ -25,10 +25,10 @@ let currentTransactionId = null;
  */
 function syncRadioSelected(radioGroupEl) {
   if (!radioGroupEl) return;
-  radioGroupEl.querySelectorAll('.radio-option').forEach(optionDiv => {
+  radioGroupEl.querySelectorAll(".radio-option").forEach((optionDiv) => {
     const input = optionDiv.querySelector('input[type="radio"]');
     if (input) {
-      optionDiv.classList.toggle('radio-selected', input.checked);
+      optionDiv.classList.toggle("radio-selected", input.checked);
     }
   });
 }
@@ -39,8 +39,13 @@ function syncRadioSelected(radioGroupEl) {
 
 async function apiFetch(path, options = {}) {
   const res = await fetch(API + path, options);
-  const json = await res.json().catch(() => ({ success: false, error: 'Respuesta inválida del servidor' }));
-  if (!json.success) throw new Error(json.error || 'Error desconocido');
+  const json = await res
+    .json()
+    .catch(() => ({
+      success: false,
+      error: "Respuesta inválida del servidor",
+    }));
+  if (!json.success) throw new Error(json.error || "Error desconocido");
   return json.data;
 }
 
@@ -48,16 +53,16 @@ async function apiFetch(path, options = {}) {
 // Utility: Toast notifications
 // ---------------------------------------------------------------------------
 
-function showToast(message, type = 'info') {
-  const container = document.getElementById('toast-container');
-  const toast = document.createElement('div');
+function showToast(message, type = "info") {
+  const container = document.getElementById("toast-container");
+  const toast = document.createElement("div");
   toast.className = `toast toast-${type}`;
   toast.textContent = message;
   container.appendChild(toast);
   setTimeout(() => {
-    toast.style.opacity = '0';
-    toast.style.transform = 'translateX(40px)';
-    toast.style.transition = 'all 0.3s ease';
+    toast.style.opacity = "0";
+    toast.style.transform = "translateX(40px)";
+    toast.style.transition = "all 0.3s ease";
     setTimeout(() => toast.remove(), 300);
   }, 3500);
 }
@@ -67,23 +72,33 @@ function showToast(message, type = 'info') {
 // ---------------------------------------------------------------------------
 
 function formatDate(dateStr) {
-  return new Date(dateStr).toLocaleDateString('es-CO', {
-    day: '2-digit', month: 'short', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
+  return new Date(dateStr).toLocaleDateString("es-CO", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 }
 
 function statusLabel(status) {
   const labels = {
-    CREATED: 'Creada', IN_PROGRESS: 'En progreso',
-    FINALIZED: 'Finalizada', CANCELLED: 'Cancelada', SIGNED: 'Firmada',
+    CREATED: "Creada",
+    IN_PROGRESS: "En progreso",
+    FINALIZED: "Finalizada",
+    CANCELLED: "Cancelada",
+    SIGNED: "Firmada",
   };
   return labels[status] || status;
 }
 
 function fieldTypeLabel(type) {
   const labels = {
-    TEXT: 'Texto', CHECKBOX: 'Casilla', RADIO: 'Radio', DROPDOWN: 'Lista', SIGNATURE: 'Firma',
+    TEXT: "Texto",
+    CHECKBOX: "Casilla",
+    RADIO: "Radio",
+    DROPDOWN: "Lista",
+    SIGNATURE: "Firma",
   };
   return labels[type] || type;
 }
@@ -93,22 +108,21 @@ function fieldTypeLabel(type) {
 // ---------------------------------------------------------------------------
 
 function showView(viewId) {
-  document.querySelectorAll('.view').forEach(el => {
-    el.style.display = 'none';
-    el.classList.remove('active');
+  document.querySelectorAll(".view").forEach((el) => {
+    el.style.display = "none";
+    el.classList.remove("active");
   });
   const el = document.getElementById(viewId);
   if (el) {
-    el.style.display = 'block';
-    el.classList.add('active');
+    el.style.display = "block";
+    el.classList.add("active");
   }
 }
 
 function setActiveNav(viewId) {
-  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  const navMap = { templates: 'nav-templates', transactions: 'nav-transactions' };
-  const navId = navMap[viewId];
-  if (navId) document.getElementById(navId)?.classList.add('active');
+  document.querySelectorAll(".nav-item[data-view]").forEach((el) => {
+    el.classList.toggle("active", el.dataset.view === viewId);
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -116,26 +130,26 @@ function setActiveNav(viewId) {
 // ---------------------------------------------------------------------------
 
 async function loadTemplates() {
-  const grid = document.getElementById('templates-grid');
-  const loading = document.getElementById('templates-loading');
-  const empty = document.getElementById('templates-empty');
+  const grid = document.getElementById("templates-grid");
+  const loading = document.getElementById("templates-loading");
+  const empty = document.getElementById("templates-empty");
 
-  grid.innerHTML = '';
-  loading.style.display = 'flex';
-  empty.style.display = 'none';
+  grid.innerHTML = "";
+  loading.style.display = "flex";
+  empty.style.display = "none";
 
   try {
-    const templates = await apiFetch('/templates');
-    loading.style.display = 'none';
+    const templates = await apiFetch("/templates");
+    loading.style.display = "none";
 
     if (!templates || templates.length === 0) {
-      empty.style.display = 'flex';
+      empty.style.display = "flex";
       return;
     }
 
-    templates.forEach(t => {
-      const card = document.createElement('div');
-      card.className = 'template-card';
+    templates.forEach((t) => {
+      const card = document.createElement("div");
+      card.className = "template-card";
       card.dataset.id = t.id;
       card.innerHTML = `
         <div class="card-icon">
@@ -145,17 +159,17 @@ async function loadTemplates() {
           </svg>
         </div>
         <div class="card-name">${t.name}</div>
-        <div class="card-desc">${t.description || 'Sin descripción'}</div>
+        <div class="card-desc">${t.description || "Sin descripción"}</div>
         <div class="card-meta">
           <span>${formatDate(t.created_at)}</span>
         </div>
       `;
-      card.addEventListener('click', () => openTemplateDetail(t.id));
+      card.addEventListener("click", () => openTemplateDetail(t.id));
       grid.appendChild(card);
     });
   } catch (err) {
-    loading.style.display = 'none';
-    showToast(err.message, 'error');
+    loading.style.display = "none";
+    showToast(err.message, "error");
   }
 }
 
@@ -165,10 +179,10 @@ async function loadTemplates() {
 
 async function openTemplateDetail(templateId) {
   currentTemplateId = templateId;
-  showView('view-template-detail');
-  setActiveNav('templates');
+  showView("view-template-detail");
+  setActiveNav("templates");
 
-  const content = document.getElementById('template-detail-content');
+  const content = document.getElementById("template-detail-content");
   content.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Cargando…</p></div>`;
 
   try {
@@ -177,8 +191,10 @@ async function openTemplateDetail(templateId) {
     const pages = t.structure?.pages || [];
 
     // Store template id on buttons
-    document.getElementById('btn-preview-template-pdf').dataset.templateId = templateId;
-    document.getElementById('btn-create-transaction').dataset.templateId = templateId;
+    document.getElementById("btn-preview-template-pdf").dataset.templateId =
+      templateId;
+    document.getElementById("btn-create-transaction").dataset.templateId =
+      templateId;
 
     content.innerHTML = `
       <div class="detail-panel">
@@ -186,12 +202,13 @@ async function openTemplateDetail(templateId) {
         <div class="panel-card">
           <div class="panel-card-header">
             <span class="panel-card-title">Campos detectados (${fields.length})</span>
-            <span style="font-size:0.75rem;color:var(--color-text-muted)">${pages.length} página${pages.length !== 1 ? 's' : ''}</span>
+            <span style="font-size:0.75rem;color:var(--color-text-muted)">${pages.length} página${pages.length !== 1 ? "s" : ""}</span>
           </div>
           <div style="overflow-x:auto">
-            ${fields.length === 0
-              ? `<div class="empty-state"><p>Sin campos detectados</p></div>`
-              : `<table class="fields-table">
+            ${
+              fields.length === 0
+                ? `<div class="empty-state"><p>Sin campos detectados</p></div>`
+                : `<table class="fields-table">
                   <thead>
                     <tr>
                       <th>Nombre</th>
@@ -200,18 +217,22 @@ async function openTemplateDetail(templateId) {
                     </tr>
                   </thead>
                   <tbody>
-                    ${fields.map(f => `
+                    ${fields
+                      .map(
+                        (f) => `
                       <tr>
                         <td>
                           <code style="font-family:monospace;font-size:0.78rem;color:var(--color-text)">${f.name}</code>
-                          ${f.dataType && f.dataType !== 'TXT' ? `<span style="font-size:0.68rem;margin-left:4px;color:var(--color-text-muted)">(${f.dataType})</span>` : ''}
+                          ${f.dataType && f.dataType !== "TXT" ? `<span style="font-size:0.68rem;margin-left:4px;color:var(--color-text-muted)">(${f.dataType})</span>` : ""}
                         </td>
                         <td><span class="field-type-badge field-type-${f.type}">${fieldTypeLabel(f.type)}</span></td>
                         <td style="text-align:center">
                           ${f.required ? '<span class="req-dot" title="Obligatorio"></span>' : '<span style="color:var(--color-text-muted)">—</span>'}
                         </td>
                       </tr>
-                    `).join('')}
+                    `,
+                      )
+                      .join("")}
                   </tbody>
                 </table>`
             }
@@ -231,7 +252,7 @@ async function openTemplateDetail(templateId) {
               </div>
               <div class="info-row">
                 <span class="info-label">Descripción</span>
-                <span class="info-value">${t.description || '—'}</span>
+                <span class="info-value">${t.description || "—"}</span>
               </div>
               <div class="info-row">
                 <span class="info-label">Páginas</span>
@@ -282,29 +303,32 @@ async function openTemplateDetail(templateId) {
     `;
   } catch (err) {
     content.innerHTML = `<div class="empty-state"><p>Error: ${err.message}</p></div>`;
-    showToast(err.message, 'error');
+    showToast(err.message, "error");
   }
 }
 
 async function createTransaction(templateId) {
   try {
-    showToast('Creando transacción…', 'info');
-    const tx = await apiFetch(`/transactions/${templateId}`, { method: 'POST' });
-    showToast('Transacción creada exitosamente', 'success');
+    showToast("Creando transacción…", "info");
+    const tx = await apiFetch(`/transactions/${templateId}`, {
+      method: "POST",
+    });
+    showToast("Transacción creada exitosamente", "success");
     openTransactionDetail(tx.id);
   } catch (err) {
-    showToast(err.message, 'error');
+    showToast(err.message, "error");
   }
 }
 
 async function deleteTemplate(templateId) {
-  if (!confirm('¿Eliminar esta plantilla? Esta acción no se puede deshacer.')) return;
+  if (!confirm("¿Eliminar esta plantilla? Esta acción no se puede deshacer."))
+    return;
   try {
-    await apiFetch(`/templates/${templateId}`, { method: 'DELETE' });
-    showToast('Plantilla eliminada', 'success');
+    await apiFetch(`/templates/${templateId}`, { method: "DELETE" });
+    showToast("Plantilla eliminada", "success");
     goToTemplates();
   } catch (err) {
-    showToast(err.message, 'error');
+    showToast(err.message, "error");
   }
 }
 
@@ -313,26 +337,26 @@ async function deleteTemplate(templateId) {
 // ---------------------------------------------------------------------------
 
 async function loadTransactions() {
-  const list = document.getElementById('transactions-list');
-  const loading = document.getElementById('transactions-loading');
-  const empty = document.getElementById('transactions-empty');
+  const list = document.getElementById("transactions-list");
+  const loading = document.getElementById("transactions-loading");
+  const empty = document.getElementById("transactions-empty");
 
-  list.innerHTML = '';
-  loading.style.display = 'flex';
-  empty.style.display = 'none';
+  list.innerHTML = "";
+  loading.style.display = "flex";
+  empty.style.display = "none";
 
   try {
-    const txs = await apiFetch('/transactions');
-    loading.style.display = 'none';
+    const txs = await apiFetch("/transactions");
+    loading.style.display = "none";
 
     if (!txs || txs.length === 0) {
-      empty.style.display = 'flex';
+      empty.style.display = "flex";
       return;
     }
 
-    txs.forEach(tx => {
-      const card = document.createElement('div');
-      card.className = 'transaction-card';
+    txs.forEach((tx) => {
+      const card = document.createElement("div");
+      card.className = "transaction-card";
       card.innerHTML = `
         <div class="tx-status-dot ${tx.status}"></div>
         <div class="tx-info">
@@ -341,12 +365,12 @@ async function loadTransactions() {
         </div>
         <span class="status-badge ${tx.status}">${statusLabel(tx.status)}</span>
       `;
-      card.addEventListener('click', () => openTransactionDetail(tx.id));
+      card.addEventListener("click", () => openTransactionDetail(tx.id));
       list.appendChild(card);
     });
   } catch (err) {
-    loading.style.display = 'none';
-    showToast(err.message, 'error');
+    loading.style.display = "none";
+    showToast(err.message, "error");
   }
 }
 
@@ -356,35 +380,37 @@ async function loadTransactions() {
 
 async function openTransactionDetail(txId) {
   currentTransactionId = txId;
-  showView('view-transaction-detail');
-  setActiveNav('transactions');
+  showView("view-transaction-detail");
+  setActiveNav("transactions");
 
-  const content = document.getElementById('transaction-detail-content');
-  const headerActions = document.getElementById('transaction-header-actions');
+  const content = document.getElementById("transaction-detail-content");
+  const headerActions = document.getElementById("transaction-header-actions");
   content.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Cargando…</p></div>`;
-  headerActions.innerHTML = '';
+  headerActions.innerHTML = "";
 
   try {
     const tx = await apiFetch(`/transactions/${txId}`);
     const fields = tx.structure?.fields || [];
     const filledData = tx.filled_data || {};
-    const isTerminal = ['FINALIZED', 'CANCELLED'].includes(tx.status);
+    const isTerminal = ["FINALIZED", "CANCELLED"].includes(tx.status);
 
     // Header actions
     headerActions.innerHTML = `
-      ${tx.status === 'FINALIZED'
-        ? `<button class="btn btn-secondary" onclick="previewPdf('/transactions/${txId}/pdf', '${tx.template_name}-filled')">
+      ${
+        tx.status === "FINALIZED"
+          ? `<button class="btn btn-secondary" onclick="previewPdf('/transactions/${txId}/pdf', '${tx.template_name}-filled')">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
               <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
             </svg>
             Descargar PDF
            </button>`
-        : ''
+          : ""
       }
-      ${!isTerminal
-        ? `<button class="btn btn-danger btn-sm" onclick="cancelTransaction('${txId}')">Cancelar</button>`
-        : ''
+      ${
+        !isTerminal
+          ? `<button class="btn btn-danger btn-sm" onclick="cancelTransaction('${txId}')">Cancelar</button>`
+          : ""
       }
     `;
 
@@ -394,14 +420,15 @@ async function openTransactionDetail(txId) {
         <div class="panel-card">
           <div class="panel-card-header">
             <span class="panel-card-title">
-              ${isTerminal ? 'Datos ingresados' : 'Llenar campos'}
+              ${isTerminal ? "Datos ingresados" : "Llenar campos"}
             </span>
             <span class="status-badge ${tx.status}">${statusLabel(tx.status)}</span>
           </div>
           <div class="panel-card-body">
-            ${fields.length === 0
-              ? `<div class="empty-state" style="padding:40px 0"><p>Esta plantilla no tiene campos</p></div>`
-              : renderFillForm(fields, filledData, isTerminal, txId)
+            ${
+              fields.length === 0
+                ? `<div class="empty-state" style="padding:40px 0"><p>Esta plantilla no tiene campos</p></div>`
+                : renderFillForm(fields, filledData, isTerminal, txId)
             }
           </div>
         </div>
@@ -436,7 +463,9 @@ async function openTransactionDetail(txId) {
             </div>
           </div>
 
-          ${!isTerminal ? `
+          ${
+            !isTerminal
+              ? `
             <div class="panel-card">
               <div class="panel-card-header">
                 <span class="panel-card-title">Acciones</span>
@@ -466,13 +495,16 @@ async function openTransactionDetail(txId) {
                 </button>
               </div>
             </div>
-          ` : `
+          `
+              : `
             <div class="panel-card">
               <div class="panel-card-header">
                 <span class="panel-card-title">Acciones</span>
               </div>
               <div class="panel-card-body fill-actions">
-                ${tx.status === 'FINALIZED' ? `
+                ${
+                  tx.status === "FINALIZED"
+                    ? `
                   <button class="btn btn-success" onclick="previewPdf('/transactions/${txId}/pdf', '${tx.template_name}-filled')">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -480,109 +512,128 @@ async function openTransactionDetail(txId) {
                     </svg>
                     Descargar PDF generado
                   </button>
-                ` : ''}
+                `
+                    : ""
+                }
               </div>
             </div>
-          `}
+          `
+          }
         </div>
       </div>
     `;
   } catch (err) {
     content.innerHTML = `<div class="empty-state"><p>Error: ${err.message}</p></div>`;
-    showToast(err.message, 'error');
+    showToast(err.message, "error");
   }
 }
 
 function renderFillForm(fields, filledData, readOnly, txId) {
-  const inputs = fields.map(f => {
-    const val = filledData[f.name];
-    const req = f.required ? '<span class="req-dot" title="Obligatorio"></span>' : '';
+  const inputs = fields
+    .map((f) => {
+      const val = filledData[f.name];
+      const req = f.required
+        ? '<span class="req-dot" title="Obligatorio"></span>'
+        : "";
 
-    if (f.type === 'CHECKBOX') {
-      return `
+      if (f.type === "CHECKBOX") {
+        return `
         <div class="form-field form-field-checkbox">
           <input type="checkbox" id="field-${f.name}" name="${f.name}"
-            ${val === true || val === 'true' ? 'checked' : ''}
-            ${readOnly ? 'disabled' : ''} />
+            ${val === true || val === "true" ? "checked" : ""}
+            ${readOnly ? "disabled" : ""} />
           <label for="field-${f.name}">${f.name} ${req}</label>
         </div>
       `;
-    }
+      }
 
-    if (f.type === 'RADIO') {
-      // Mirror PdfField.tsx pattern:
-      // Each widget in the group = one <input type="radio"> with the same `name`
-      // but with its own `value` (the widget's on-value from the PDF).
-      // HTML radio grouping by shared `name` handles mutual exclusion natively.
-      return `
+      if (f.type === "RADIO") {
+        // Mirror PdfField.tsx pattern:
+        // Each widget in the group = one <input type="radio"> with the same `name`
+        // but with its own `value` (the widget's on-value from the PDF).
+        // HTML radio grouping by shared `name` handles mutual exclusion natively.
+        return `
         <div class="form-field" data-radio-group="${f.name}">
           <label>${f.name} ${req}</label>
           <div class="radio-group">
-            ${f.widgets.map((w, idx) => {
-              const optVal = (w.value ?? '').trim();
-              const displayLabel = optVal || `Opción ${idx + 1}`;
-              const inputId = `radio__${f.name}__${idx}`;
-              const isChecked = val !== undefined && val !== null && val !== '' && String(val) === String(optVal);
-              // onclick en el div selecciona el radio aunque el click caiga fuera del input/label
-              const clickHandler = readOnly ? '' : `onclick="document.getElementById('${inputId}').click();syncRadioSelected(this.closest('.radio-group'))"`;
-              return `
-                <div class="radio-option ${isChecked ? 'radio-selected' : ''}" ${clickHandler}>
+            ${f.widgets
+              .map((w, idx) => {
+                const optVal = (w.value ?? "").trim();
+                const displayLabel = optVal || `Opción ${idx + 1}`;
+                const inputId = `radio__${f.name}__${idx}`;
+                const isChecked =
+                  val !== undefined &&
+                  val !== null &&
+                  val !== "" &&
+                  String(val) === String(optVal);
+                // onclick en el div selecciona el radio aunque el click caiga fuera del input/label
+                const clickHandler = readOnly
+                  ? ""
+                  : `onclick="document.getElementById('${inputId}').click();syncRadioSelected(this.closest('.radio-group'))"`;
+                return `
+                <div class="radio-option ${isChecked ? "radio-selected" : ""}" ${clickHandler}>
                   <input
                     type="radio"
                     id="${inputId}"
                     name="radio__${f.name}"
                     value="${optVal}"
                     data-radio-group="${f.name}"
-                    ${isChecked ? 'checked' : ''}
-                    ${readOnly ? 'disabled' : `onchange="syncRadioSelected(this.closest('.radio-group'))"`}
+                    ${isChecked ? "checked" : ""}
+                    ${readOnly ? "disabled" : `onchange="syncRadioSelected(this.closest('.radio-group'))"`}
                   />
                   <label for="${inputId}">${displayLabel}</label>
                 </div>
               `;
-            }).join('')}
+              })
+              .join("")}
           </div>
         </div>
       `;
-    }
+      }
 
-
-    if (f.type === 'DROPDOWN') {
-      return `
+      if (f.type === "DROPDOWN") {
+        return `
         <div class="form-field">
           <label for="field-${f.name}">${f.name} ${req}</label>
-          <select id="field-${f.name}" name="${f.name}" ${readOnly ? 'disabled' : ''}>
+          <select id="field-${f.name}" name="${f.name}" ${readOnly ? "disabled" : ""}>
             <option value="">— Seleccionar —</option>
-            ${(f.options || []).map(o => `
-              <option value="${o}" ${val === o ? 'selected' : ''}>${o}</option>
-            `).join('')}
+            ${(f.options || [])
+              .map(
+                (o) => `
+              <option value="${o}" ${val === o ? "selected" : ""}>${o}</option>
+            `,
+              )
+              .join("")}
           </select>
         </div>
       `;
-    }
+      }
 
-    if (f.type === 'SIGNATURE') {
-      const hasSig = val && val.startsWith('<svg');
-      if (readOnly) {
-        return `
+      if (f.type === "SIGNATURE") {
+        const hasSig = val && val.startsWith("<svg");
+        if (readOnly) {
+          return `
           <div class="form-field">
             <label>${f.name} ${req}</label>
-            ${hasSig
-              ? `<div class="signature-readonly-display">${val}</div>`
-              : `<span style="font-size:0.78rem;color:var(--color-text-muted)">Sin firma</span>`
+            ${
+              hasSig
+                ? `<div class="signature-readonly-display">${val}</div>`
+                : `<span style="font-size:0.78rem;color:var(--color-text-muted)">Sin firma</span>`
             }
-            <input type="hidden" id="field-${f.name}" name="${f.name}" value="${val ? val.replace(/"/g, '&quot;') : ''}" />
+            <input type="hidden" id="field-${f.name}" name="${f.name}" value="${val ? val.replace(/"/g, "&quot;") : ""}" />
           </div>
         `;
-      }
-      return `
+        }
+        return `
         <div class="form-field">
           <label>${f.name} ${req}</label>
           <div class="signature-field-wrapper">
-            <div class="signature-preview-container ${hasSig ? 'has-signature' : ''}"
+            <div class="signature-preview-container ${hasSig ? "has-signature" : ""}"
                  id="sig-preview-${f.name}"
                  onclick="openSignaturePad('${f.name}')">
-              ${hasSig
-                ? `<div class="signature-preview-svg">${val}</div>
+              ${
+                hasSig
+                  ? `<div class="signature-preview-svg">${val}</div>
                    <div class="signature-preview-actions">
                      <button type="button" class="signature-mini-btn" onclick="event.stopPropagation();openSignaturePad('${f.name}')" title="Editar firma">
                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -595,7 +646,7 @@ function renderFillForm(fields, filledData, readOnly, txId) {
                        </svg>
                      </button>
                    </div>`
-                : `<div class="signature-preview-placeholder">
+                  : `<div class="signature-preview-placeholder">
                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                        <path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
                      </svg>
@@ -603,62 +654,72 @@ function renderFillForm(fields, filledData, readOnly, txId) {
                    </div>`
               }
             </div>
-            ${hasSig ? `<div class="signature-status">
+            ${
+              hasSig
+                ? `<div class="signature-status">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <polyline points="20 6 9 17 4 12"/>
               </svg>
               Firma capturada
-            </div>` : ''}
-            <input type="hidden" id="field-${f.name}" name="${f.name}" value="${val ? val.replace(/"/g, '&quot;') : ''}" />
+            </div>`
+                : ""
+            }
+            <input type="hidden" id="field-${f.name}" name="${f.name}" value="${val ? val.replace(/"/g, "&quot;") : ""}" />
           </div>
         </div>
       `;
-    }
+      }
 
-    // TEXT field
-    const inputTypeMap = { TXT: 'text', EMAIL: 'email', DATE: 'date', NUM: 'number', PHONE: 'tel' };
-    const inputType = inputTypeMap[f.dataType] || 'text';
+      // TEXT field
+      const inputTypeMap = {
+        TXT: "text",
+        EMAIL: "email",
+        DATE: "date",
+        NUM: "number",
+        PHONE: "tel",
+      };
+      const inputType = inputTypeMap[f.dataType] || "text";
 
-    return `
+      return `
       <div class="form-field">
         <label for="field-${f.name}">${f.name} ${req}</label>
         <input
           type="${inputType}"
           id="field-${f.name}"
           name="${f.name}"
-          value="${val || ''}"
-          placeholder="${f.dataType === 'DATE' ? '' : `Ingresa ${f.name}`}"
-          ${readOnly ? 'readonly' : ''}
+          value="${val || ""}"
+          placeholder="${f.dataType === "DATE" ? "" : `Ingresa ${f.name}`}"
+          ${readOnly ? "readonly" : ""}
         />
       </div>
     `;
-  }).join('');
+    })
+    .join("");
 
   return `<form id="fill-form" class="fill-form">${inputs}</form>`;
 }
 
 function collectFormData(fields) {
   // Scope search to the fill-form element to avoid collisions with other DOM sections
-  const form = document.getElementById('fill-form');
+  const form = document.getElementById("fill-form");
   const root = form || document;
   const data = {};
 
   for (const f of fields) {
-    if (f.type === 'RADIO') {
+    if (f.type === "RADIO") {
       // Mirror PdfField.tsx: find the checked input by the shared `name` attribute
       // which is `radio__${f.name}` — all widgets of the same group share it.
-      const checked = root.querySelector(`input[name="radio__${f.name}"]:checked`);
+      const checked = root.querySelector(
+        `input[name="radio__${f.name}"]:checked`,
+      );
       if (checked) data[f.name] = checked.value;
-
-    } else if (f.type === 'CHECKBOX') {
+    } else if (f.type === "CHECKBOX") {
       const el = root.querySelector(`#field-${CSS.escape(f.name)}`);
       if (el) data[f.name] = el.checked;
-
-    } else if (f.type === 'DROPDOWN') {
+    } else if (f.type === "DROPDOWN") {
       const el = root.querySelector(`#field-${CSS.escape(f.name)}`);
       if (el) data[f.name] = el.value;
-
-    } else if (f.type === 'SIGNATURE') {
+    } else if (f.type === "SIGNATURE") {
       const el = root.querySelector(`#field-${CSS.escape(f.name)}`);
       if (el && el.value) data[f.name] = el.value;
     } else {
@@ -677,19 +738,22 @@ async function saveTransactionFields(txId) {
     const data = collectFormData(fields);
 
     await apiFetch(`/transactions/${txId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ data }),
     });
-    showToast('Campos guardados correctamente', 'success');
+    showToast("Campos guardados correctamente", "success");
   } catch (err) {
-    showToast(err.message, 'error');
+    showToast(err.message, "error");
   }
 }
 
 async function flattenTransaction(txId) {
-  const btn = document.getElementById('btn-flatten');
-  if (btn) { btn.disabled = true; btn.textContent = 'Generando…'; }
+  const btn = document.getElementById("btn-flatten");
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Generando…";
+  }
 
   try {
     const tx = await apiFetch(`/transactions/${txId}`);
@@ -698,29 +762,32 @@ async function flattenTransaction(txId) {
 
     // Save first
     await apiFetch(`/transactions/${txId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ data }),
     });
 
     // Flatten
-    await apiFetch(`/transactions/${txId}/flatten`, { method: 'POST' });
-    showToast('PDF generado exitosamente', 'success');
+    await apiFetch(`/transactions/${txId}/flatten`, { method: "POST" });
+    showToast("PDF generado exitosamente", "success");
     openTransactionDetail(txId); // Reload
   } catch (err) {
-    showToast(err.message, 'error');
-    if (btn) { btn.disabled = false; btn.textContent = 'Generar PDF final'; }
+    showToast(err.message, "error");
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Generar PDF final";
+    }
   }
 }
 
 async function cancelTransaction(txId) {
-  if (!confirm('¿Cancelar esta transacción?')) return;
+  if (!confirm("¿Cancelar esta transacción?")) return;
   try {
-    await apiFetch(`/transactions/${txId}/cancel`, { method: 'POST' });
-    showToast('Transacción cancelada', 'success');
+    await apiFetch(`/transactions/${txId}/cancel`, { method: "POST" });
+    showToast("Transacción cancelada", "success");
     openTransactionDetail(txId);
   } catch (err) {
-    showToast(err.message, 'error');
+    showToast(err.message, "error");
   }
 }
 
@@ -730,10 +797,10 @@ async function cancelTransaction(txId) {
 
 const signaturePadState = {
   fieldName: null,
-  strokes: [],        // Array of stroke objects { points, color, width }
+  strokes: [], // Array of stroke objects { points, color, width }
   currentStroke: null,
   isDrawing: false,
-  penColor: '#ffffff',
+  penColor: "#ffffff",
   penWidth: 3,
   canvas: null,
   ctx: null,
@@ -746,16 +813,16 @@ function openSignaturePad(fieldName) {
   state.currentStroke = null;
   state.isDrawing = false;
 
-  const modal = document.getElementById('modal-signature');
-  const canvas = document.getElementById('signature-canvas');
-  const wrapper = document.getElementById('signature-canvas-wrapper');
-  const title = document.getElementById('signature-modal-title');
+  const modal = document.getElementById("modal-signature");
+  const canvas = document.getElementById("signature-canvas");
+  const wrapper = document.getElementById("signature-canvas-wrapper");
+  const title = document.getElementById("signature-modal-title");
 
   title.textContent = `Firma — ${fieldName}`;
 
   // Set up canvas resolution
   // We need to show the modal first to get actual dimensions
-  modal.style.display = 'flex';
+  modal.style.display = "flex";
 
   // Delay canvas setup to allow DOM to render
   requestAnimationFrame(() => {
@@ -764,22 +831,26 @@ function openSignaturePad(fieldName) {
     canvas.width = actualRect.width * dpr;
     canvas.height = actualRect.height * dpr;
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     ctx.scale(dpr, dpr);
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
 
     state.canvas = canvas;
     state.ctx = ctx;
 
     // Check if there's an existing signature and try to load it
     const hiddenInput = document.getElementById(`field-${fieldName}`);
-    if (hiddenInput && hiddenInput.value && hiddenInput.value.startsWith('<svg')) {
+    if (
+      hiddenInput &&
+      hiddenInput.value &&
+      hiddenInput.value.startsWith("<svg")
+    ) {
       // Parse existing SVG and reload strokes
       loadSvgToCanvas(hiddenInput.value);
     }
 
-    wrapper.classList.toggle('has-strokes', state.strokes.length > 0);
+    wrapper.classList.toggle("has-strokes", state.strokes.length > 0);
     redrawCanvas();
   });
 }
@@ -790,13 +861,13 @@ function loadSvgToCanvas(svgString) {
 
   // Parse the SVG path elements back into strokes
   const parser = new DOMParser();
-  const doc = parser.parseFromString(svgString, 'image/svg+xml');
-  const paths = doc.querySelectorAll('path');
+  const doc = parser.parseFromString(svgString, "image/svg+xml");
+  const paths = doc.querySelectorAll("path");
 
-  paths.forEach(pathEl => {
-    const d = pathEl.getAttribute('d');
-    const stroke = pathEl.getAttribute('stroke') || '#ffffff';
-    const width = parseFloat(pathEl.getAttribute('stroke-width')) || 3;
+  paths.forEach((pathEl) => {
+    const d = pathEl.getAttribute("d");
+    const stroke = pathEl.getAttribute("stroke") || "#ffffff";
+    const width = parseFloat(pathEl.getAttribute("stroke-width")) || 3;
 
     // Parse the SVG path d attribute back into points
     const points = parseSvgPathToPoints(d);
@@ -813,7 +884,7 @@ function parseSvgPathToPoints(d) {
   const commands = d.match(/[ML][\s,]?[\d.]+[\s,]+[\d.]+/g);
   if (!commands) return [];
 
-  commands.forEach(cmd => {
+  commands.forEach((cmd) => {
     const nums = cmd.match(/[\d.]+/g);
     if (nums && nums.length >= 2) {
       points.push({ x: parseFloat(nums[0]), y: parseFloat(nums[1]) });
@@ -823,7 +894,7 @@ function parseSvgPathToPoints(d) {
 }
 
 function closeSignaturePad() {
-  document.getElementById('modal-signature').style.display = 'none';
+  document.getElementById("modal-signature").style.display = "none";
   signaturePadState.fieldName = null;
   signaturePadState.strokes = [];
 }
@@ -831,7 +902,7 @@ function closeSignaturePad() {
 function confirmSignature() {
   const state = signaturePadState;
   if (state.strokes.length === 0) {
-    showToast('Dibuja tu firma antes de confirmar', 'error');
+    showToast("Dibuja tu firma antes de confirmar", "error");
     return;
   }
 
@@ -845,7 +916,7 @@ function confirmSignature() {
   // Update preview
   const preview = document.getElementById(`sig-preview-${fieldName}`);
   if (preview) {
-    preview.classList.add('has-signature');
+    preview.classList.add("has-signature");
     preview.innerHTML = `
       <div class="signature-preview-svg">${svgString}</div>
       <div class="signature-preview-actions">
@@ -863,12 +934,12 @@ function confirmSignature() {
     `;
 
     // Add status indicator after preview container
-    const wrapper = preview.closest('.signature-field-wrapper');
-    const oldStatus = wrapper?.querySelector('.signature-status');
+    const wrapper = preview.closest(".signature-field-wrapper");
+    const oldStatus = wrapper?.querySelector(".signature-status");
     if (oldStatus) oldStatus.remove();
     if (wrapper) {
-      const statusEl = document.createElement('div');
-      statusEl.className = 'signature-status';
+      const statusEl = document.createElement("div");
+      statusEl.className = "signature-status";
       statusEl.innerHTML = `
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <polyline points="20 6 9 17 4 12"/>
@@ -882,16 +953,16 @@ function confirmSignature() {
   }
 
   closeSignaturePad();
-  showToast('Firma guardada correctamente', 'success');
+  showToast("Firma guardada correctamente", "success");
 }
 
 function clearSignatureField(fieldName) {
   const hiddenInput = document.getElementById(`field-${fieldName}`);
-  if (hiddenInput) hiddenInput.value = '';
+  if (hiddenInput) hiddenInput.value = "";
 
   const preview = document.getElementById(`sig-preview-${fieldName}`);
   if (preview) {
-    preview.classList.remove('has-signature');
+    preview.classList.remove("has-signature");
     preview.innerHTML = `
       <div class="signature-preview-placeholder">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -901,8 +972,8 @@ function clearSignatureField(fieldName) {
       </div>
     `;
 
-    const wrapper = preview.closest('.signature-field-wrapper');
-    const oldStatus = wrapper?.querySelector('.signature-status');
+    const wrapper = preview.closest(".signature-field-wrapper");
+    const oldStatus = wrapper?.querySelector(".signature-status");
     if (oldStatus) oldStatus.remove();
   }
 }
@@ -915,7 +986,10 @@ function exportStrokesToSvg() {
   const h = rect.height;
 
   // Calculate the bounding box of all strokes
-  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  let minX = Infinity,
+    minY = Infinity,
+    maxX = -Infinity,
+    maxY = -Infinity;
   for (const stroke of state.strokes) {
     for (const pt of stroke.points) {
       minX = Math.min(minX, pt.x);
@@ -935,15 +1009,20 @@ function exportStrokesToSvg() {
   const bh = maxY - minY;
 
   // Generate SVG paths
-  const paths = state.strokes.map(stroke => {
-    if (stroke.points.length === 0) return '';
-    const d = stroke.points.map((pt, i) => {
-      const x = (pt.x - minX).toFixed(2);
-      const y = (pt.y - minY).toFixed(2);
-      return i === 0 ? `M${x},${y}` : `L${x},${y}`;
-    }).join(' ');
-    return `<path d="${d}" stroke="${stroke.color}" stroke-width="${stroke.width}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
-  }).filter(Boolean).join('\n  ');
+  const paths = state.strokes
+    .map((stroke) => {
+      if (stroke.points.length === 0) return "";
+      const d = stroke.points
+        .map((pt, i) => {
+          const x = (pt.x - minX).toFixed(2);
+          const y = (pt.y - minY).toFixed(2);
+          return i === 0 ? `M${x},${y}` : `L${x},${y}`;
+        })
+        .join(" ");
+      return `<path d="${d}" stroke="${stroke.color}" stroke-width="${stroke.width}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+    })
+    .filter(Boolean)
+    .join("\n  ");
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${bw.toFixed(1)} ${bh.toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}">
   ${paths}
@@ -963,8 +1042,8 @@ function redrawCanvas() {
     ctx.beginPath();
     ctx.strokeStyle = stroke.color;
     ctx.lineWidth = stroke.width;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
     ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
     for (let i = 1; i < stroke.points.length; i++) {
       ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
@@ -977,7 +1056,10 @@ function getCanvasPos(e) {
   const canvas = signaturePadState.canvas;
   const rect = canvas.getBoundingClientRect();
   if (e.touches && e.touches.length > 0) {
-    return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
+    return {
+      x: e.touches[0].clientX - rect.left,
+      y: e.touches[0].clientY - rect.top,
+    };
   }
   return { x: e.clientX - rect.left, y: e.clientY - rect.top };
 }
@@ -992,7 +1074,7 @@ function onCanvasPointerDown(e) {
     color: state.penColor,
     width: state.penWidth,
   };
-  document.getElementById('signature-canvas-wrapper').classList.add('drawing');
+  document.getElementById("signature-canvas-wrapper").classList.add("drawing");
 }
 
 function onCanvasPointerMove(e) {
@@ -1010,8 +1092,8 @@ function onCanvasPointerMove(e) {
     ctx.beginPath();
     ctx.strokeStyle = state.currentStroke.color;
     ctx.lineWidth = state.currentStroke.width;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
     ctx.moveTo(pts[pts.length - 2].x, pts[pts.length - 2].y);
     ctx.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y);
     ctx.stroke();
@@ -1029,25 +1111,25 @@ function onCanvasPointerUp(e) {
   }
   state.currentStroke = null;
 
-  const wrapper = document.getElementById('signature-canvas-wrapper');
-  wrapper.classList.remove('drawing');
-  wrapper.classList.toggle('has-strokes', state.strokes.length > 0);
+  const wrapper = document.getElementById("signature-canvas-wrapper");
+  wrapper.classList.remove("drawing");
+  wrapper.classList.toggle("has-strokes", state.strokes.length > 0);
 }
 
 function undoLastStroke() {
   const state = signaturePadState;
   if (state.strokes.length === 0) return;
   state.strokes.pop();
-  const wrapper = document.getElementById('signature-canvas-wrapper');
-  wrapper.classList.toggle('has-strokes', state.strokes.length > 0);
+  const wrapper = document.getElementById("signature-canvas-wrapper");
+  wrapper.classList.toggle("has-strokes", state.strokes.length > 0);
   redrawCanvas();
 }
 
 function clearAllStrokes() {
   const state = signaturePadState;
   state.strokes = [];
-  const wrapper = document.getElementById('signature-canvas-wrapper');
-  wrapper.classList.remove('has-strokes');
+  const wrapper = document.getElementById("signature-canvas-wrapper");
+  wrapper.classList.remove("has-strokes");
   redrawCanvas();
 }
 
@@ -1056,17 +1138,17 @@ function clearAllStrokes() {
 // ---------------------------------------------------------------------------
 
 function previewPdf(path, name) {
-  const modal = document.getElementById('modal-pdf');
-  const iframe = document.getElementById('pdf-iframe');
-  const title = document.getElementById('pdf-modal-title');
-  const downloadLink = document.getElementById('pdf-download-link');
+  const modal = document.getElementById("modal-pdf");
+  const iframe = document.getElementById("pdf-iframe");
+  const title = document.getElementById("pdf-modal-title");
+  const downloadLink = document.getElementById("pdf-download-link");
 
   const url = API + path;
   iframe.src = url;
-  title.textContent = name || 'Vista previa';
+  title.textContent = name || "Vista previa";
   downloadLink.href = url;
-  downloadLink.download = `${name || 'document'}.pdf`;
-  modal.style.display = 'flex';
+  downloadLink.download = `${name || "document"}.pdf`;
+  modal.style.display = "flex";
 }
 
 // ---------------------------------------------------------------------------
@@ -1077,26 +1159,26 @@ let selectedFile = null;
 
 function openUploadModal() {
   selectedFile = null;
-  document.getElementById('file-input').value = '';
-  document.getElementById('input-description').value = '';
-  document.getElementById('file-selected').style.display = 'none';
-  document.getElementById('modal-upload').style.display = 'flex';
+  document.getElementById("file-input").value = "";
+  document.getElementById("input-description").value = "";
+  document.getElementById("file-selected").style.display = "none";
+  document.getElementById("modal-upload").style.display = "flex";
 }
 
 function closeUploadModal() {
-  document.getElementById('modal-upload').style.display = 'none';
+  document.getElementById("modal-upload").style.display = "none";
   selectedFile = null;
 }
 
 function handleFileSelected(file) {
   if (!file) return;
-  if (!file.name.endsWith('.pdf') && file.type !== 'application/pdf') {
-    showToast('Solo se aceptan archivos PDF', 'error');
+  if (!file.name.endsWith(".pdf") && file.type !== "application/pdf") {
+    showToast("Solo se aceptan archivos PDF", "error");
     return;
   }
   selectedFile = file;
-  const info = document.getElementById('file-selected');
-  info.style.display = 'flex';
+  const info = document.getElementById("file-selected");
+  info.style.display = "flex";
   info.textContent = `✓ ${file.name} (${(file.size / 1024).toFixed(0)} KB)`;
 }
 
@@ -1105,14 +1187,14 @@ function handleFileSelected(file) {
 // ---------------------------------------------------------------------------
 
 function goToTemplates() {
-  showView('view-templates');
-  setActiveNav('templates');
+  showView("view-templates");
+  setActiveNav("templates");
   loadTemplates();
 }
 
 function goToTransactions() {
-  showView('view-transactions');
-  setActiveNav('transactions');
+  showView("view-transactions");
+  setActiveNav("transactions");
   loadTransactions();
 }
 
@@ -1120,133 +1202,197 @@ function goToTransactions() {
 // Event Listeners — Init
 // ---------------------------------------------------------------------------
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   // Nav
-  document.getElementById('nav-templates').addEventListener('click', goToTemplates);
-  document.getElementById('nav-transactions').addEventListener('click', goToTransactions);
+  document
+    .getElementById("nav-templates")
+    .addEventListener("click", goToTemplates);
+  document
+    .getElementById("nav-transactions")
+    .addEventListener("click", goToTransactions);
+  document
+    .getElementById("mobile-nav-templates")
+    .addEventListener("click", goToTemplates);
+  document
+    .getElementById("mobile-nav-transactions")
+    .addEventListener("click", goToTransactions);
 
   // Back buttons
-  document.getElementById('btn-back-from-template').addEventListener('click', goToTemplates);
-  document.getElementById('btn-back-from-transaction').addEventListener('click', goToTransactions);
+  document
+    .getElementById("btn-back-from-template")
+    .addEventListener("click", goToTemplates);
+  document
+    .getElementById("btn-back-from-transaction")
+    .addEventListener("click", goToTransactions);
 
   // Upload modal
-  document.getElementById('btn-open-upload').addEventListener('click', openUploadModal);
-  document.getElementById('btn-close-upload').addEventListener('click', closeUploadModal);
-  document.getElementById('btn-cancel-upload').addEventListener('click', closeUploadModal);
+  document
+    .getElementById("btn-open-upload")
+    .addEventListener("click", openUploadModal);
+  document
+    .getElementById("btn-close-upload")
+    .addEventListener("click", closeUploadModal);
+  document
+    .getElementById("btn-cancel-upload")
+    .addEventListener("click", closeUploadModal);
 
   // File input
-  const fileInput = document.getElementById('file-input');
-  fileInput.addEventListener('change', (e) => handleFileSelected(e.target.files[0]));
+  const fileInput = document.getElementById("file-input");
+  fileInput.addEventListener("change", (e) =>
+    handleFileSelected(e.target.files[0]),
+  );
 
   // Drop zone
-  const dropZone = document.getElementById('drop-zone');
-  dropZone.addEventListener('click', () => fileInput.click());
-  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
-  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-  dropZone.addEventListener('drop', (e) => {
+  const dropZone = document.getElementById("drop-zone");
+  dropZone.addEventListener("click", () => fileInput.click());
+  dropZone.addEventListener("dragover", (e) => {
     e.preventDefault();
-    dropZone.classList.remove('dragover');
+    dropZone.classList.add("dragover");
+  });
+  dropZone.addEventListener("dragleave", () =>
+    dropZone.classList.remove("dragover"),
+  );
+  dropZone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dropZone.classList.remove("dragover");
     handleFileSelected(e.dataTransfer.files[0]);
   });
 
   // Upload form submit
-  document.getElementById('form-upload').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (!selectedFile) { showToast('Selecciona un archivo PDF primero', 'error'); return; }
+  document
+    .getElementById("form-upload")
+    .addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!selectedFile) {
+        showToast("Selecciona un archivo PDF primero", "error");
+        return;
+      }
 
-    const btn = document.getElementById('btn-submit-upload');
-    btn.disabled = true;
-    btn.querySelector('span').textContent = 'Analizando…';
+      const btn = document.getElementById("btn-submit-upload");
+      btn.disabled = true;
+      btn.querySelector("span").textContent = "Analizando…";
 
-    try {
-      const formData = new FormData();
-      formData.append('file', selectedFile);
-      const description = document.getElementById('input-description').value.trim();
-      if (description) formData.append('description', description);
+      try {
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+        const description = document
+          .getElementById("input-description")
+          .value.trim();
+        if (description) formData.append("description", description);
 
-      const template = await apiFetch('/templates', { method: 'POST', body: formData });
-      showToast(`Plantilla "${template.name}" subida exitosamente`, 'success');
-      closeUploadModal();
-      loadTemplates();
-    } catch (err) {
-      showToast(err.message, 'error');
-    } finally {
-      btn.disabled = false;
-      btn.querySelector('span').textContent = 'Analizar y subir';
-    }
-  });
+        const template = await apiFetch("/templates", {
+          method: "POST",
+          body: formData,
+        });
+        showToast(
+          `Plantilla "${template.name}" subida exitosamente`,
+          "success",
+        );
+        closeUploadModal();
+        loadTemplates();
+      } catch (err) {
+        showToast(err.message, "error");
+      } finally {
+        btn.disabled = false;
+        btn.querySelector("span").textContent = "Analizar y subir";
+      }
+    });
 
   // Preview template PDF button (header)
-  document.getElementById('btn-preview-template-pdf').addEventListener('click', (e) => {
-    const id = e.currentTarget.dataset.templateId || currentTemplateId;
-    if (id) previewPdf(`/templates/${id}/pdf`, 'Plantilla PDF');
-  });
+  document
+    .getElementById("btn-preview-template-pdf")
+    .addEventListener("click", (e) => {
+      const id = e.currentTarget.dataset.templateId || currentTemplateId;
+      if (id) previewPdf(`/templates/${id}/pdf`, "Plantilla PDF");
+    });
 
   // Create transaction button (header)
-  document.getElementById('btn-create-transaction').addEventListener('click', (e) => {
-    const id = e.currentTarget.dataset.templateId || currentTemplateId;
-    if (id) createTransaction(id);
-  });
+  document
+    .getElementById("btn-create-transaction")
+    .addEventListener("click", (e) => {
+      const id = e.currentTarget.dataset.templateId || currentTemplateId;
+      if (id) createTransaction(id);
+    });
 
   // PDF modal close
-  document.getElementById('btn-close-pdf').addEventListener('click', () => {
-    document.getElementById('modal-pdf').style.display = 'none';
-    document.getElementById('pdf-iframe').src = '';
+  document.getElementById("btn-close-pdf").addEventListener("click", () => {
+    document.getElementById("modal-pdf").style.display = "none";
+    document.getElementById("pdf-iframe").src = "";
   });
 
   // ── Signature pad events ──────────────────────────────
-  const sigCanvas = document.getElementById('signature-canvas');
+  const sigCanvas = document.getElementById("signature-canvas");
 
   // Mouse events
-  sigCanvas.addEventListener('mousedown', onCanvasPointerDown);
-  sigCanvas.addEventListener('mousemove', onCanvasPointerMove);
-  sigCanvas.addEventListener('mouseup', onCanvasPointerUp);
-  sigCanvas.addEventListener('mouseleave', onCanvasPointerUp);
+  sigCanvas.addEventListener("mousedown", onCanvasPointerDown);
+  sigCanvas.addEventListener("mousemove", onCanvasPointerMove);
+  sigCanvas.addEventListener("mouseup", onCanvasPointerUp);
+  sigCanvas.addEventListener("mouseleave", onCanvasPointerUp);
 
   // Touch events
-  sigCanvas.addEventListener('touchstart', onCanvasPointerDown, { passive: false });
-  sigCanvas.addEventListener('touchmove', onCanvasPointerMove, { passive: false });
-  sigCanvas.addEventListener('touchend', onCanvasPointerUp);
-  sigCanvas.addEventListener('touchcancel', onCanvasPointerUp);
+  sigCanvas.addEventListener("touchstart", onCanvasPointerDown, {
+    passive: false,
+  });
+  sigCanvas.addEventListener("touchmove", onCanvasPointerMove, {
+    passive: false,
+  });
+  sigCanvas.addEventListener("touchend", onCanvasPointerUp);
+  sigCanvas.addEventListener("touchcancel", onCanvasPointerUp);
 
   // Toolbar: colors
-  document.getElementById('signature-colors').addEventListener('click', (e) => {
-    const swatch = e.target.closest('.color-swatch');
+  document.getElementById("signature-colors").addEventListener("click", (e) => {
+    const swatch = e.target.closest(".color-swatch");
     if (!swatch) return;
-    document.querySelectorAll('#signature-colors .color-swatch').forEach(s => s.classList.remove('active'));
-    swatch.classList.add('active');
+    document
+      .querySelectorAll("#signature-colors .color-swatch")
+      .forEach((s) => s.classList.remove("active"));
+    swatch.classList.add("active");
     signaturePadState.penColor = swatch.dataset.color;
   });
 
   // Toolbar: pen widths
-  document.getElementById('signature-pen-width').addEventListener('click', (e) => {
-    const opt = e.target.closest('.pen-width-option');
-    if (!opt) return;
-    document.querySelectorAll('#signature-pen-width .pen-width-option').forEach(o => o.classList.remove('active'));
-    opt.classList.add('active');
-    signaturePadState.penWidth = parseInt(opt.dataset.width);
-  });
+  document
+    .getElementById("signature-pen-width")
+    .addEventListener("click", (e) => {
+      const opt = e.target.closest(".pen-width-option");
+      if (!opt) return;
+      document
+        .querySelectorAll("#signature-pen-width .pen-width-option")
+        .forEach((o) => o.classList.remove("active"));
+      opt.classList.add("active");
+      signaturePadState.penWidth = parseInt(opt.dataset.width);
+    });
 
   // Toolbar: undo & clear
-  document.getElementById('btn-signature-undo').addEventListener('click', undoLastStroke);
-  document.getElementById('btn-signature-clear').addEventListener('click', clearAllStrokes);
+  document
+    .getElementById("btn-signature-undo")
+    .addEventListener("click", undoLastStroke);
+  document
+    .getElementById("btn-signature-clear")
+    .addEventListener("click", clearAllStrokes);
 
   // Signature modal: close, cancel, confirm
-  document.getElementById('btn-close-signature').addEventListener('click', closeSignaturePad);
-  document.getElementById('btn-cancel-signature').addEventListener('click', closeSignaturePad);
-  document.getElementById('btn-confirm-signature').addEventListener('click', confirmSignature);
+  document
+    .getElementById("btn-close-signature")
+    .addEventListener("click", closeSignaturePad);
+  document
+    .getElementById("btn-cancel-signature")
+    .addEventListener("click", closeSignaturePad);
+  document
+    .getElementById("btn-confirm-signature")
+    .addEventListener("click", confirmSignature);
 
   // Close modals on overlay click
-  document.getElementById('modal-upload').addEventListener('click', (e) => {
+  document.getElementById("modal-upload").addEventListener("click", (e) => {
     if (e.target === e.currentTarget) closeUploadModal();
   });
-  document.getElementById('modal-pdf').addEventListener('click', (e) => {
+  document.getElementById("modal-pdf").addEventListener("click", (e) => {
     if (e.target === e.currentTarget) {
-      document.getElementById('modal-pdf').style.display = 'none';
-      document.getElementById('pdf-iframe').src = '';
+      document.getElementById("modal-pdf").style.display = "none";
+      document.getElementById("pdf-iframe").src = "";
     }
   });
-  document.getElementById('modal-signature').addEventListener('click', (e) => {
+  document.getElementById("modal-signature").addEventListener("click", (e) => {
     if (e.target === e.currentTarget) closeSignaturePad();
   });
 
